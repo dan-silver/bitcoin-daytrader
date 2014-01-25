@@ -13,6 +13,10 @@ class MarketDatabase < Database
 
   def insert (buy, sell)
     @db.execute("INSERT INTO #{@name} (btc_usd_buy, btc_usd_sell, timestamp)
-            VALUES (?, ?, datetime('now', 'utc'))", [buy, sell])
+            VALUES (?, ?, datetime('now', 'localtime'))", [buy, sell])
+  end
+
+  def execute(cmd)
+    @db.execute cmd
   end
 end
