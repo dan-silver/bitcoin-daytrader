@@ -1,7 +1,7 @@
 require 'bitstamp'
 require 'colorize'
 
-load 'fetchMarketData.rb'
+load 'marketData.rb'
 
 Bitstamp.setup do |config|
   config.key = ENV['BITSTAMP_KEY']
@@ -9,7 +9,7 @@ Bitstamp.setup do |config|
   config.client_id = ENV['BITSTAMP_CLIENT_ID']
 end
 
-fetcher = FetchMarketData.new
+fetcher = MarketData.new
 
 while true do
   puts "\n"*2, "*".cyan*50, "\n"*2

@@ -1,4 +1,4 @@
-class FetchMarketData
+class MarketData
   load 'marketDatabase.rb'
   @buy, @sell = nil
 
