@@ -16,6 +16,7 @@ while true do
   puts "Current market data:"
   puts fetcher.fetch
   puts "\n"
+'''
   puts "Change over the last 2 minutes:"
   puts fetcher.getPriceChange "-2 minutes"
   puts "Change over the last 5 minutes:"
@@ -24,5 +25,6 @@ while true do
   puts fetcher.getPriceChange "-20 minutes"
   puts "Change over the last hour:"
   puts fetcher.getPriceChange "-1 hour"
+'''
   sleep 15
 end

@@ -1,4 +1,4 @@
-load 'database.rb'
+load '../data/database.rb'
 
 class MarketDatabase < Database
   def initialize
