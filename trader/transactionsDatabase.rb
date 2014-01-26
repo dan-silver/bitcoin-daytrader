@@ -15,7 +15,7 @@ class TransactionsDatabase < Database
 
   def insert (btc, btc_usd, fee, type)
     @db.execute("INSERT INTO #{@name} (btc, btc_usd, fee, type, timestamp)
-            VALUES (?, ?, ?, ?, datetime('now', 'localtime'))", [btc, btc_usd, fee, type])
+            VALUES (?, ?, ?, ?, datetime('now', 'localtime'))", [btc, btc_usd, fee, type.to_s])
   end
 
   def execute(cmd)

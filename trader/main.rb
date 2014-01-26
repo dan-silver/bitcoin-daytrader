@@ -9,6 +9,9 @@ Bitstamp.setup do |config|
   config.client_id = ENV['BITSTAMP_CLIENT_ID']
 end
 
+transactionsDb = TransactionsDatabase.new
+#transactionsDb.insert 0.01, 840, 0.26, :purchase
+#transactionsDb.insert 0.01, 870, 0.24, :sale
 
 while true do
   puts "Running main loop..."
