@@ -15,8 +15,8 @@ class Trader
       config.client_id = ENV["BITSTAMP_CLIENT_ID"]
     end
     @transactionsDb = TransactionsDatabase.new
-    #transactionsDb.insert 0.01, 840, 0.26, :purchase
-    @transactionsDb.insert 0.02, 900, 0.09, :sale
+    @transactionsDb.insert 0.01, 740, 0.26, :purchase
+    #@transactionsDb.insert 0.02, 900, 0.09, :sale
 
     @marketDb = MarketDatabase.new
   end
@@ -58,6 +58,7 @@ class Trader
       purchase current_bitcoin_market_value, usd_avail
     end
   end
+
   def purchase(btc_usd, usd_avail)
     puts "Purchasing"
 
@@ -84,15 +85,16 @@ class Trader
 
     if percent_change > @min_percent_gain
       puts "Minimum sale threshold reached"
-      sell
+      sell current_bitcoin_market_value, last_purchase[:btc]
     end
     puts percent_change
   end
 
-
-  def sell
+  def sell (btc_usd, btc_quantity)
     puts "Selling"
-    @transactionsDb.insert 0.02, 900, 0.24, :sale
+    fee = btc_usd * btc_quantity * 0.005
+    @transactionsDb.insert btc_quantity, btc_usd, fee, :sale
+    #Bitstamp.orders.sell(amount: 1.0, price: 111)
   end
 
   '''
