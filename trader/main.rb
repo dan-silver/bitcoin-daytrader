@@ -3,6 +3,7 @@ require 'colorize'
 
 load 'transactionsDatabase.rb'
 load 'marketDatabase.rb'
+load '../rounding.rb'
 
 class Trader
   def initialize(options)
@@ -15,7 +16,7 @@ class Trader
       config.client_id = ENV["BITSTAMP_CLIENT_ID"]
     end
     @transactionsDb = TransactionsDatabase.new
-    @transactionsDb.insert 0.01, 740, 0.26, :purchase
+    @transactionsDb.insert 0.61725807, 806, 2.49, :purchase
     #@transactionsDb.insert 0.02, 900, 0.09, :sale
 
     @marketDb = MarketDatabase.new
@@ -29,8 +30,6 @@ class Trader
   #              [:type, "text"], #purchase/sale
   #              [:timestamp, "DATETIME"]
   def trade
-    puts "trading!"
-
     last_transaction = @transactionsDb.all_rows.last
     type = last_transaction[:type]
     type == "sale" ? consider_purchase(last_transaction) : consider_sale(last_transaction)
@@ -70,7 +69,6 @@ class Trader
   end
 
   def consider_sale(last_purchase)
-    puts last_purchase
     puts "Considering a sale"
 
     current_market_data = @marketDb.all_rows.last
@@ -87,7 +85,7 @@ class Trader
       puts "Minimum sale threshold reached"
       sell current_bitcoin_market_value, last_purchase[:btc]
     end
-    puts percent_change
+    puts percent_change.percent_round
   end
 
   def sell (btc_usd, btc_quantity)
