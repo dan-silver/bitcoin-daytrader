@@ -14,7 +14,12 @@ fetcher = MarketData.new
 while true do
   puts "\n"*2, "*".cyan*50, "\n"*2
   puts "Current market data:"
-  puts fetcher.fetch
+  begin
+    puts fetcher.fetch
+  rescue Exception => e
+    puts "Network error", e
+  end
+  
   puts "\n"
 '''
   puts "Change over the last 2 minutes:"

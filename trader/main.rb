@@ -16,8 +16,10 @@ class Trader
       config.client_id = ENV["BITSTAMP_CLIENT_ID"]
     end
     @transactionsDb = TransactionsDatabase.new
-    @transactionsDb.insert 0.61725807, 5000, 2.49, :purchase
+    @transactionsDb.insert 0.61725807, 815, 2.49, :purchase
     #@transactionsDb.insert 0.02, 900, 0.09, :sale
+
+    @profit_this_run = nil
 
     @marketDb = MarketDatabase.new
   end
@@ -95,8 +97,21 @@ class Trader
   def sell (btc_usd, btc_quantity)
     puts "Selling"
     fee = btc_usd * btc_quantity * 0.005
-    @transactionsDb.insert btc_quantity, btc_usd, fee, :sale
-    #Bitstamp.orders.sell(amount: 1.0, price: 111)
+    begin
+      #Bitstamp.orders.sell(amount: 1.0, price: 111)
+    rescue Exception => e
+      puts "error making transaction"      
+    end
+    transaction_success = false
+    while !transaction_success
+      begin
+        @transactionsDb.insert btc_quantity, btc_usd, fee, :sale
+        transaction_success = true
+      rescue
+        puts "failure recording transaction, retrying"
+        transaction_success = false
+      end
+    end
   end
 
 end

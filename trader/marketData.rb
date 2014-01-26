@@ -23,7 +23,16 @@ class MarketData
     @buy, @sell = ticker.ask.to_f, ticker.bid.to_f
     adjust_speed
     # @buy, @sell = @btc_price, @btc_price
-    @marketDb.insert @buy, @sell
+    database_insert_success = false
+    while !database_insert_success
+      begin
+        @marketDb.insert @buy, @sell
+        database_insert_success =true
+      rescue Exception => e
+        puts "Database insert error",e
+        database_insert_success = false
+      end
+    end
     {:buy => @buy, :sell => @sell}
   end
 
