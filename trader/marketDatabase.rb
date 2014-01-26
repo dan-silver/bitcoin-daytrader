@@ -24,4 +24,8 @@ class MarketDatabase < Database
       :timestamp => row[2]
     }
   end
+
+  def last_rows (number_of_rows)
+    @db.execute("select * from #{@name} order by timestamp desc limit #{number_of_rows}").map{|r| convert_to_keys r}
+  end
 end

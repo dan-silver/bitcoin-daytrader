@@ -3,6 +3,7 @@ class MarketData
 
   def initialize
     @marketDb = MarketDatabase.new
+    #@marketDb.last_rows 5
     @buy, @sell = nil
     @btc_price = 850.0  
   end
@@ -19,9 +20,9 @@ class MarketData
     {:buy => @buy, :sell => @sell}
   end
 
-  def getPriceChange(timechange = "-1 minute")
+  def getPriceChange(timechange = "1 minute")
     return if @buy == nil
-    result = @marketDb.execute("select * from market where timestamp > datetime('now', 'localtime', '#{timechange}') order by timestamp asc limit 1;").first
+    result = @marketDb.execute("select * from market where timestamp > datetime('now', 'localtime', '-#{timechange}') order by timestamp asc limit 1;").first
     {:buy => @buy - result[0].to_f, :sell => @sell - result[1].to_f}
   end
 end
