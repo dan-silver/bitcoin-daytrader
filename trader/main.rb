@@ -73,9 +73,6 @@ class Trader
 
     current_market_data = @marketDb.all_rows.last
 
-    #usd_value_of_bitcoins_owned = last_purchase[:btc]*last_purchase[:btc_usd]
-    #usd_value_of_bitcoins_owned -= last_purchase[:fee]
-
     last_bitcoin_market_value = last_purchase[:btc_usd]
     
     current_bitcoin_market_value = current_market_data[:btc_usd_buy]
@@ -95,13 +92,6 @@ class Trader
     #Bitstamp.orders.sell(amount: 1.0, price: 111)
   end
 
-  '''
-  def purchase_costs
-  end
-
-  def sale_costs
-  end
-  '''
 end
 
 trader = Trader.new :percent_gain_for_sale => 0.01, :percent_change_for_purchase => -0.01
