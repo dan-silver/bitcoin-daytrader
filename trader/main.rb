@@ -36,7 +36,7 @@ class Trader
     puts "Last Transaction:".green
     puts last_transaction, ""
     type == "sale" ? consider_purchase(last_transaction) : consider_sale(last_transaction)
-    puts "profit_this_run "+"#{@profit_this_run}".cyan
+    puts "profit this run "+"#{@profit_this_run}".cyan
   end
   # [:btc_usd_buy, "real"],
   #              [:btc_usd_sell, "real"],
