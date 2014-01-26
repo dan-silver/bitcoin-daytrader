@@ -27,4 +27,7 @@ class TransactionsDatabase < Database
       :timestamp => row[4],
     }
   end
+  def last_purchase
+    @db.execute("SELECT * FROM #{@name} WHERE type='purchase' ORDER BY timestamp DESC LIMIT 1").map { |r| convert_to_keys r }[0]
+  end
 end

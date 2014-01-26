@@ -16,10 +16,9 @@ class Trader
       config.client_id = ENV["BITSTAMP_CLIENT_ID"]
     end
     @transactionsDb = TransactionsDatabase.new
-    @transactionsDb.insert 0.61725807, 815, 2.49, :purchase
+    @transactionsDb.insert 0.00414, 795, 0.016, :purchase
     #@transactionsDb.insert 0.02, 900, 0.09, :sale
-
-    @profit_this_run = nil
+    @profit_this_run = 0#not nil since it really is zero at this point
 
     @marketDb = MarketDatabase.new
   end
@@ -37,7 +36,7 @@ class Trader
     puts "Last Transaction:".green
     puts last_transaction, ""
     type == "sale" ? consider_purchase(last_transaction) : consider_sale(last_transaction)
-
+    puts "profit_this_run "+"#{@profit_this_run}".cyan
   end
   # [:btc_usd_buy, "real"],
   #              [:btc_usd_sell, "real"],
@@ -107,11 +106,23 @@ class Trader
       begin
         @transactionsDb.insert btc_quantity, btc_usd, fee, :sale
         transaction_success = true
-      rescue
-        puts "failure recording transaction, retrying"
+        update_profit btc_usd, btc_quantity
+      rescue Exception => e
+        puts "failure recording transaction, retrying",e
         transaction_success = false
+        sleep 1
       end
     end
+  end
+
+  def update_profit(btc_usd_current, btc_quantity)
+    previous_purchase = @transactionsDb.last_purchase
+    btc_usd_old = previous_purchase[:btc_usd]
+    btc_quantity_old = previous_purchase[:btc]
+    #we just cashed out $ - we purchased last with $
+    money_made = btc_usd_current*btc_quantity-btc_usd_old*btc_quantity_old
+    @profit_this_run += money_made
+    @profit_this_run = @profit_this_run.usd_round
   end
 
 end
