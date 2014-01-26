@@ -16,7 +16,12 @@ class MarketDatabase < Database
             VALUES (?, ?, datetime('now', 'localtime'))", [buy, sell])
   end
 
-  def execute(cmd)
-    @db.execute cmd
+
+  def convert_to_keys(row)
+    {
+      :btc_usd_buy => row[0],
+      :btc_usd_sell => row[1],
+      :timestamp => row[2]
+    }
   end
 end

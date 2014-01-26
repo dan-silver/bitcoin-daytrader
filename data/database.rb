@@ -19,6 +19,10 @@ class Database
   end
 
   def all_rows
-    @db.execute "select * from #{@name}"
+    @db.execute("select * from #{@name}").map{|r| convert_to_keys r}
+  end
+  
+  def execute(cmd)
+    @db.execute cmd
   end
 end

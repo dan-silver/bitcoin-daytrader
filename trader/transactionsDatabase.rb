@@ -18,7 +18,13 @@ class TransactionsDatabase < Database
             VALUES (?, ?, ?, ?, datetime('now', 'localtime'))", [btc, btc_usd, fee, type.to_s])
   end
 
-  def execute(cmd)
-    @db.execute cmd
+  def convert_to_keys(row)
+    {
+      :btc => row[0],
+      :btc_usd => row[1],
+      :fee => row[2],
+      :type => row[3],
+      :timestamp => row[4],
+    }
   end
 end

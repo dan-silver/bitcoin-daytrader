@@ -29,7 +29,7 @@ class Trader
     puts "trading!"
 
     last_transaction = @transactionsDb.all_rows.last
-    type = last_transaction[3]
+    type = last_transaction[:type]
     type == "sale" ? consider_purchase(last_transaction) : consider_sale
 
   end
@@ -44,11 +44,11 @@ class Trader
     #fee_percent = 0.5
     current_market_data = @marketDb.all_rows.last
 
-    usd_avail = last_sale[0]*last_sale[1]
-    usd_avail -= last_sale[2]
+    usd_avail = last_sale[:btc]*last_sale[:btc_usd]
+    usd_avail -= last_sale[:fee]
 
-    last_bitcoin_market_value = last_sale[1]
-    current_bitcoin_market_value = current_market_data[0]
+    last_bitcoin_market_value = last_sale[:btc_usd]
+    current_bitcoin_market_value = current_market_data[:btc_usd_buy]
 
     percent_increase = (current_bitcoin_market_value-last_bitcoin_market_value)/last_bitcoin_market_value
     puts percent_increase
