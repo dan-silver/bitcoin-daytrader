@@ -5,7 +5,10 @@ load 'transactionsDatabase.rb'
 load 'marketDatabase.rb'
 
 class Trader
-  def initialize
+  def initialize(options)
+    @min_percent_gain = options[:percent_gain_for_sale]
+    @min_percent_drop = options[:percent_change_for_purchase]
+
     Bitstamp.setup do |config|
       config.key = ENV["BITSTAMP_KEY"]
       config.secret = ENV["BITSTAMP_SECRET"]
@@ -13,7 +16,7 @@ class Trader
     end
     @transactionsDb = TransactionsDatabase.new
     #transactionsDb.insert 0.01, 840, 0.26, :purchase
-    @transactionsDb.insert 0.02, 870, 0.24, :purchase
+    @transactionsDb.insert 0.02, 900, 0.24, :sale
 
     @marketDb = MarketDatabase.new
   end
@@ -52,6 +55,9 @@ class Trader
 
     percent_change = (current_bitcoin_market_value-last_bitcoin_market_value)/last_bitcoin_market_value
     puts percent_change
+    if percent_change < @min_percent_drop
+      puts "Minimum purchase threshold reached"
+    end
   end
 
   def consider_sale(last_purchase)
@@ -67,6 +73,10 @@ class Trader
     
     current_bitcoin_market_value = current_market_data[:btc_usd_buy]
     percent_change = (current_bitcoin_market_value-last_bitcoin_market_value)/last_bitcoin_market_value
+
+    if percent_change > @min_percent_gain
+      puts "Minimum sale threshold reached"
+    end
     puts percent_change
   end
 
@@ -79,7 +89,7 @@ class Trader
   '''
 end
 
-trader = Trader.new
+trader = Trader.new :percent_gain_for_sale => 0.01, :percent_change_for_purchase => -0.01
 while true do
   puts "Running main loop..."
   trader.trade
