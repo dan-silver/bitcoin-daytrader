@@ -9,12 +9,12 @@ class MarketData
 
   def fetch
     #ticker = Bitstamp.ticker
-    @rndm = Random.new
-    change = @rndm.rand(-10.0...10.0)
-    puts change
-    @btc_price += change
-    #@buy, @sell = ticker.ask.to_f, ticker.bid.to_f
-    @buy, @sell = @btc_price, @btc_price
+    # @rndm = Random.new
+    # change = @rndm.rand(-30.0...30.0)
+    # puts change
+    #@btc_price += change
+    @buy, @sell = ticker.ask.to_f, ticker.bid.to_f
+    # @buy, @sell = @btc_price, @btc_price
     @marketDb.insert @buy, @sell
     {:buy => @buy, :sell => @sell}
   end

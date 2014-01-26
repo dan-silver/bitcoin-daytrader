@@ -16,7 +16,7 @@ class Trader
       config.client_id = ENV["BITSTAMP_CLIENT_ID"]
     end
     @transactionsDb = TransactionsDatabase.new
-    @transactionsDb.insert 0.61725807, 806, 2.49, :purchase
+    @transactionsDb.insert 0.61725807, 850, 2.49, :purchase
     #@transactionsDb.insert 0.02, 900, 0.09, :sale
 
     @marketDb = MarketDatabase.new
