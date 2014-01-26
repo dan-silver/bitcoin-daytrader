@@ -8,7 +8,7 @@ class MarketData
   end
 
   def fetch
-    #ticker = Bitstamp.ticker
+    ticker = Bitstamp.ticker
     # @rndm = Random.new
     # change = @rndm.rand(-30.0...30.0)
     # puts change
