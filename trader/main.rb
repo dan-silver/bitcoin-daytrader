@@ -2,7 +2,7 @@ require 'bitstamp'
 require 'colorize'
 
 load 'transactionsDatabase.rb'
-load '../market/marketDatabase.rb'
+load 'marketDatabase.rb'
 
 class Trader
   def initialize
