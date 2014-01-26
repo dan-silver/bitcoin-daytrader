@@ -16,7 +16,7 @@ class Trader
     end
     @transactionsDb = TransactionsDatabase.new
     #transactionsDb.insert 0.01, 840, 0.26, :purchase
-    @transactionsDb.insert 0.02, 900, 0.24, :sale
+    @transactionsDb.insert 0.02, 900, 0.09, :sale
 
     @marketDb = MarketDatabase.new
   end
@@ -41,14 +41,12 @@ class Trader
   #              [:timestamp, "DATETIME"]
 
   def consider_purchase(last_sale)
-    puts last_sale
     puts "consider_purchase!!!"
     
     #fee_percent = 0.5
     current_market_data = @marketDb.all_rows.last
 
     usd_avail = last_sale[:btc]*last_sale[:btc_usd]
-    usd_avail -= last_sale[:fee]
 
     last_bitcoin_market_value = last_sale[:btc_usd]
     current_bitcoin_market_value = current_market_data[:btc_usd_buy]
@@ -57,7 +55,17 @@ class Trader
     puts percent_change
     if percent_change < @min_percent_drop
       puts "Minimum purchase threshold reached"
+      purchase current_bitcoin_market_value, usd_avail
     end
+  end
+  def purchase(btc_usd, usd_avail)
+    puts "Purchasing"
+
+    fee = usd_avail * 0.005
+    usd_avail -= fee
+    btc_quantity = usd_avail / btc_usd
+    @transactionsDb.insert btc_quantity, btc_usd, fee, :purchase
+    #Bitstamp.orders.buy(amount: 1.0, price: 111)
   end
 
   def consider_sale(last_purchase)
@@ -76,8 +84,15 @@ class Trader
 
     if percent_change > @min_percent_gain
       puts "Minimum sale threshold reached"
+      sell
     end
     puts percent_change
+  end
+
+
+  def sell
+    puts "Selling"
+    @transactionsDb.insert 0.02, 900, 0.24, :sale
   end
 
   '''
