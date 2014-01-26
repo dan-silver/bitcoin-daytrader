@@ -13,7 +13,7 @@ class Trader
     end
     @transactionsDb = TransactionsDatabase.new
     #transactionsDb.insert 0.01, 840, 0.26, :purchase
-    @transactionsDb.insert 0.02, 870, 0.24, :sale
+    @transactionsDb.insert 0.02, 870, 0.24, :purchase
 
     @marketDb = MarketDatabase.new
   end
@@ -30,7 +30,7 @@ class Trader
 
     last_transaction = @transactionsDb.all_rows.last
     type = last_transaction[:type]
-    type == "sale" ? consider_purchase(last_transaction) : consider_sale
+    type == "sale" ? consider_purchase(last_transaction) : consider_sale(last_transaction)
 
   end
   # [:btc_usd_buy, "real"],
@@ -50,11 +50,24 @@ class Trader
     last_bitcoin_market_value = last_sale[:btc_usd]
     current_bitcoin_market_value = current_market_data[:btc_usd_buy]
 
-    percent_increase = (current_bitcoin_market_value-last_bitcoin_market_value)/last_bitcoin_market_value
-    puts percent_increase
+    percent_change = (current_bitcoin_market_value-last_bitcoin_market_value)/last_bitcoin_market_value
+    puts percent_change
   end
 
-  def consider_sale
+  def consider_sale(last_purchase)
+    puts last_purchase
+    puts "Considering a sale"
+
+    current_market_data = @marketDb.all_rows.last
+
+    #usd_value_of_bitcoins_owned = last_purchase[:btc]*last_purchase[:btc_usd]
+    #usd_value_of_bitcoins_owned -= last_purchase[:fee]
+
+    last_bitcoin_market_value = last_purchase[:btc_usd]
+    
+    current_bitcoin_market_value = current_market_data[:btc_usd_buy]
+    percent_change = (current_bitcoin_market_value-last_bitcoin_market_value)/last_bitcoin_market_value
+    puts percent_change
   end
 
   '''
