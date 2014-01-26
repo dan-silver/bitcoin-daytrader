@@ -26,5 +26,5 @@ while true do
   puts "Change over the last hour:"
   puts fetcher.getPriceChange "-1 hour"
 '''
-  sleep 15
+  sleep 5
 end

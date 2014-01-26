@@ -98,5 +98,6 @@ trader = Trader.new :percent_gain_for_sale => 0.01, :percent_change_for_purchase
 while true do
   puts "Running main loop..."
   trader.trade
-  sleep 10
+
+  sleep 5
 end
