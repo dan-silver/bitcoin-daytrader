@@ -37,10 +37,10 @@ class MarketData
     @speed_samples.pop
     last_record = (@marketDb.last_rows 1).first
     @speed_samples.unshift ({:buy => @buy-last_record[:btc_usd_buy], :sell => @sell-last_record[:btc_usd_sell]})
-    buy_sum = @speed_samples.reduce (0) { |sum,e| sum + e[:buy] }
-    sell_sum = @speed_samples.reduce (0) { |sum,e| sum + e[:sell] }
-    @buy_speed_average = buy_sum/@speed_samples.length
-    @sell_speed_average = sell_sum/@speed_samples.length
+
+    @buy_speed_average = average_property_in_array @speed_samples, :buy
+    @sell_speed_average = average_property_in_array @speed_samples, :sell
+
     puts "buy_speed_average: #{@buy_speed_average}"
     puts "sell_speed_average: #{@sell_speed_average}"
   end
@@ -56,4 +56,7 @@ class MarketData
     end
   end
 
+  def average_property_in_array(array, property)
+    array.reduce(0) { |sum,e| sum + e[property] } / array.length
+  end
 end
