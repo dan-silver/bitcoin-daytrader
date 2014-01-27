@@ -8,7 +8,7 @@ class MarketData
     @speed_samples = []
     @buy_speed_average = nil
     @sell_speed_average = nil
-    populate_speed_array
+    populate_speed_array 60
   end
 
   def fetch
@@ -54,11 +54,11 @@ class MarketData
     puts "sell_speed_average: #{@sell_speed_average}"
   end
 
-  def populate_speed_array
-    last_15 = @marketDb.last_rows 60
-    (0..58).each do |i|
-      row = last_15[i]
-      next_row = last_15[i+1] 
+  def populate_speed_array (n)
+    fetched_rows = @marketDb.last_rows n
+    (0..(n-2)).each do |i|
+      row = fetched_rows[i]
+      next_row = fetched_rows[i+1]
       sell = row[:btc_usd_sell]-next_row[:btc_usd_sell]
       buy = row[:btc_usd_buy]-next_row[:btc_usd_buy]
       @speed_samples << {:buy => buy, :sell => sell}
