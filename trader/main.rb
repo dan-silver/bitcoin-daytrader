@@ -16,8 +16,8 @@ class Trader
       config.client_id = ENV["BITSTAMP_CLIENT_ID"]
     end
     @transactionsDb = TransactionsDatabase.new
-    @transactionsDb.insert 0.00414, 795, 0.016, :purchase
-    #@transactionsDb.insert 0.02, 900, 0.09, :sale
+    #@transactionsDb.insert 0.00414, 95, 0.016, :purchase
+    @transactionsDb.insert 0.02, 900, 0.09, :sale
     @profit_this_run = 0#not nil since it really is zero at this point
 
     @marketDb = MarketDatabase.new
@@ -116,7 +116,7 @@ class Trader
   end
 
   def update_profit(btc_usd_current, btc_quantity)
-    previous_purchase = @transactionsDb.last_purchase
+    previous_purchase = @transactionsDb.last :purchase
     btc_usd_old = previous_purchase[:btc_usd]
     btc_quantity_old = previous_purchase[:btc]
     #we just cashed out $ - we purchased last with $
