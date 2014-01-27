@@ -4,25 +4,16 @@ class MarketData
   def initialize
     @marketDb = MarketDatabase.new
     @buy, @sell = nil
-    @btc_price = 850.0
     @speed_samples = []
-    @buy_speed_average = nil
-    @sell_speed_average = nil
+    @buy_speed_average, @sell_speed_average = nil
     populate_speed_array 60
   end
 
   def fetch
-    
-
     ticker = Bitstamp.ticker
-    # @rndm = Random.new
-    # change = @rndm.rand(-30.0...30.0)
-    # puts change
-    #@btc_price += change
-
     @buy, @sell = ticker.ask.to_f, ticker.bid.to_f
+
     adjust_speed
-    # @buy, @sell = @btc_price, @btc_price
     database_insert_success = false
     while !database_insert_success
       begin
