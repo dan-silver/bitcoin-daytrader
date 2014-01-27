@@ -23,13 +23,6 @@ class Trader
     @marketDb = MarketDatabase.new
   end
 
-
- #  puts last_transaction[0]
-  #             [:btc, "real"],
-  #              [:btc_usd, "real"],
-  #              [:fee, "real"],
-  #              [:type, "text"], #purchase/sale
-  #              [:timestamp, "DATETIME"]
   def trade
     last_transaction = @transactionsDb.all_rows.last
     type = last_transaction[:type]
@@ -38,14 +31,10 @@ class Trader
     type == "sale" ? consider_purchase(last_transaction) : consider_sale(last_transaction)
     puts "profit this run "+"#{@profit_this_run}".cyan
   end
-  # [:btc_usd_buy, "real"],
-  #              [:btc_usd_sell, "real"],
-  #              [:timestamp, "DATETIME"]
 
   def consider_purchase(last_sale)
     puts "Considering a purchase".green
-    
-    #fee_percent = 0.5
+
     current_market_data = @marketDb.all_rows.last
 
     usd_avail = last_sale[:btc]*last_sale[:btc_usd]
