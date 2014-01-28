@@ -21,7 +21,7 @@ class Trader
 
     @fee = nil
 
-    @transactionsDb.insert 0.25, 635, 1.86, :purchase
+    @transactionsDb.insert 0.235, 795, 0.90, :purchase
     #@transactionsDb.insert 0.25, 772, 0.97, :sale
 
     @profit_this_run = 0 #not nil since it really is zero at this point
@@ -57,18 +57,18 @@ class Trader
     puts "Current bitcoin price: $#{@current_market_data[:btc_usd_buy].usd_round}"
     puts "Waiting for a drop of #{@min_percent_drop*100}%"
     puts "Percent change in bitcoin conversion value: " + "#{((btc_percent_change*100).percent_round.to_s+"%").color_by_sign}"
-    printPriceChanges
+    printPriceChanges :buy
     if btc_percent_change < @min_percent_drop
       puts "Minimum purchase threshold reached"
       purchase current_bitcoin_market_value, usd_avail
     end
   end
 
-  def printPriceChanges
+  def printPriceChanges(type)
     times = ["1 minute", "2 minutes", "5 minutes", "20 minutes"]
     puts "Change over the last:"
     times.each do |time|
-      puts "\t#{time}: #{getPriceChange(time)[:buy].usd_round.to_s.dollar_sign.color_by_sign}"
+      puts "\t#{time}: #{getPriceChange(time)[type].usd_round.to_s.dollar_sign.color_by_sign}"
     end
   end
 
@@ -91,14 +91,14 @@ class Trader
 
     current_bitcoin_market_value = @current_market_data[:btc_usd_sell]
     btc_percent_change = percent_change current_bitcoin_market_value, last_bitcoin_market_value
-    printPriceChanges
+    printPriceChanges :sell
     puts "Current bitcoin price: $#{@current_market_data[:btc_usd_sell].usd_round}"
     puts "Waiting for a gain of #{@min_percent_gain*100}%"
     puts "Percent change in bitcoin conversion value: " + "#{((btc_percent_change*100).percent_round.to_s + "%").color_by_sign}"
+    puts "Sale_confidence: #{sale_confidence}"
     if btc_percent_change > @min_percent_gain
       puts "Minimum sale threshold reached"
-      puts "sale_confidence = #{sale_confidence}"
-      if sale_confidence > 0
+      if sale_confidence > 15
         sell current_bitcoin_market_value, last_purchase[:btc]
       end
     end
@@ -114,16 +114,26 @@ class Trader
     times.each do |time|
       price_changes << getPriceChange(time)[:sell]
     end
+    '''
     min = price_changes.min
     max = price_changes.max
 
     scaled_price_changes = price_changes.map {|a| scale(min,max,-100,100,a)}
 
-    #puts scaled_price_changes
-    confidence += scaled_price_changes[times_hash['1 minute']] * -10
-    confidence += scaled_price_changes[times_hash['2 minutes']] * -10
-    confidence += scaled_price_changes[times_hash['5 minutes']] * 5
-    confidence += scaled_price_changes[times_hash['20 minutes']] * 5
+    puts scaled_price_changes
+    confidence += scaled_price_changes[times_hash["1 minute"]] * -10
+    confidence += scaled_price_changes[times_hash["2 minutes"]] * -10
+    confidence += scaled_price_changes[times_hash["5 minutes"]] * 5
+    confidence += scaled_price_changes[times_hash["20 minutes"]] * 5
+    '''
+
+    #puts price_changes
+    confidence += price_changes[times_hash['1 minute']] * -10
+    confidence += price_changes[times_hash['2 minutes']] * -10
+    confidence += price_changes[times_hash['5 minutes']] * 5
+    confidence += price_changes[times_hash['20 minutes']] * 5
+
+
     confidence
   end
 
@@ -169,7 +179,7 @@ class Trader
   end
 end
 
-trader = Trader.new :percent_gain_for_sale => 0.02, :percent_change_for_purchase => -0.01
+trader = Trader.new :percent_gain_for_sale => 0.012, :percent_change_for_purchase => -0.01
 while true do
   puts "",("*"*50).cyan,""
   trader.trade
