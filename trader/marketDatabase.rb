@@ -28,4 +28,8 @@ class MarketDatabase < Database
   def last_rows (number_of_rows)
     @db.execute("select * from #{@name} order by timestamp desc limit #{number_of_rows}").map{|r| convert_to_keys r}
   end
+
+  def last_row
+    last_rows(1).first
+  end
 end

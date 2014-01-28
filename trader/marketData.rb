@@ -35,8 +35,8 @@ class MarketData
 
   def adjust_speed
     @speed_samples.pop
-    last_record = (@marketDb.last_rows 1).first
-    @speed_samples.unshift ({:buy => @buy-last_record[:btc_usd_buy], :sell => @sell-last_record[:btc_usd_sell]})
+    last_record = @marketDb.last_row
+    @speed_samples.unshift ({:buy => @buy - last_record[:btc_usd_buy], :sell => @sell - last_record[:btc_usd_sell]})
 
     @buy_speed_average = average_property_in_array @speed_samples, :buy
     @sell_speed_average = average_property_in_array @speed_samples, :sell
