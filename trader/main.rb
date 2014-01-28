@@ -16,8 +16,8 @@ class Trader
       config.client_id = ENV["BITSTAMP_CLIENT_ID"]
     end
     @transactionsDb = TransactionsDatabase.new
-    #@transactionsDb.insert 0.00414, 95, 0.016, :purchase
-    @transactionsDb.insert 0.02, 900, 0.09, :sale
+    #@transactionsDb.insert 0.25, 745, 1.86, :purchase
+    #@transactionsDb.insert 0.02, 900, 0.09, :sale
     @profit_this_run = 0 #not nil since it really is zero at this point
 
     @marketDb = MarketDatabase.new
@@ -54,7 +54,7 @@ class Trader
   end
 
   def purchase(btc_usd, usd_avail)
-    puts "Purchasing"
+    puts "Purchasing!".light_green
 
     fee = usd_avail * 0.005
     usd_avail -= fee
@@ -80,11 +80,11 @@ class Trader
     end
     puts "Current bitcoin price: $#{current_market_data[:btc_usd_buy].usd_round}"
     puts "Waiting for a gain of #{@min_percent_gain*100}%"
-    puts "Percent change in bitcoin conversion value: " + "#{percent_change.percent_round*100}%".cyan
+    puts "Percent change in bitcoin conversion value: " + "#{(percent_change*100).percent_round}%".cyan
   end
 
   def sell (btc_usd, btc_quantity)
-    puts "Selling"
+    puts "Selling!".light_green
     fee = btc_usd * btc_quantity * 0.005
     begin
       #Bitstamp.orders.sell(amount: 1.0, price: 111)
