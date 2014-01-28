@@ -71,14 +71,14 @@ class Trader
 
     last_bitcoin_market_value = last_purchase[:btc_usd]
     
-    current_bitcoin_market_value = current_market_data[:btc_usd_buy]
+    current_bitcoin_market_value = current_market_data[:btc_usd_sell]
     percent_change = (current_bitcoin_market_value-last_bitcoin_market_value)/last_bitcoin_market_value
 
     if percent_change > @min_percent_gain
       puts "Minimum sale threshold reached"
       sell current_bitcoin_market_value, last_purchase[:btc]
     end
-    puts "Current bitcoin price: $#{current_market_data[:btc_usd_buy].usd_round}"
+    puts "Current bitcoin price: $#{current_market_data[:btc_usd_sell].usd_round}"
     puts "Waiting for a gain of #{@min_percent_gain*100}%"
     puts "Percent change in bitcoin conversion value: " + "#{(percent_change*100).percent_round}%".cyan
   end
