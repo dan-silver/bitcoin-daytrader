@@ -45,13 +45,13 @@ class Trader
     last_bitcoin_market_value = last_sale[:btc_usd]
     current_bitcoin_market_value = @current_market_data[:btc_usd_buy]
 
-    percent_change = (current_bitcoin_market_value-last_bitcoin_market_value)/last_bitcoin_market_value
+    btc_percent_change = percent_change current_bitcoin_market_value, last_bitcoin_market_value
     
     puts "Current bitcoin price: $#{@current_market_data[:btc_usd_buy].usd_round}"
     puts "Waiting for a drop of #{@min_percent_drop*100}%"
-    puts "Percent change in bitcoin conversion value: " + "#{((percent_change*100).percent_round.to_s+"%").color_by_sign}"
+    puts "Percent change in bitcoin conversion value: " + "#{((btc_percent_change*100).percent_round.to_s+"%").color_by_sign}"
     printPriceChanges
-    if percent_change < @min_percent_drop
+    if btc_percent_change < @min_percent_drop
       puts "Minimum purchase threshold reached"
       purchase current_bitcoin_market_value, usd_avail
     end
@@ -82,15 +82,15 @@ class Trader
     last_bitcoin_market_value = last_purchase[:btc_usd]
     
     current_bitcoin_market_value = @current_market_data[:btc_usd_sell]
-    percent_change = (current_bitcoin_market_value-last_bitcoin_market_value)/last_bitcoin_market_value
+    btc_percent_change = percent_change current_bitcoin_market_value, last_bitcoin_market_value
     printPriceChanges
-    if percent_change > @min_percent_gain
+    if btc_percent_change > @min_percent_gain
       puts "Minimum sale threshold reached"
       sell current_bitcoin_market_value, last_purchase[:btc]
     end
     puts "Current bitcoin price: $#{@current_market_data[:btc_usd_sell].usd_round}"
     puts "Waiting for a gain of #{@min_percent_gain*100}%"
-    puts "Percent change in bitcoin conversion value: " + "#{(percent_change*100).percent_round.color_by_sign}%"
+    puts "Percent change in bitcoin conversion value: " + "#{((btc_percent_change*100).percent_round.to_s + "%").color_by_sign}"
   end
 
   def sell (btc_usd, btc_quantity)
