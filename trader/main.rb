@@ -18,21 +18,21 @@ class Trader
     @transactionsDb = TransactionsDatabase.new
     #@transactionsDb.insert 0.00414, 95, 0.016, :purchase
     @transactionsDb.insert 0.02, 900, 0.09, :sale
-    @profit_this_run = 0#not nil since it really is zero at this point
+    @profit_this_run = 0 #not nil since it really is zero at this point
 
     @marketDb = MarketDatabase.new
   end
 
   def trade
     last_transaction = @transactionsDb.all_rows.last
-    type = last_transaction[:type]
     puts "Last Transaction:".green
     puts last_transaction, ""
-    type == "sale" ? consider_purchase(last_transaction) : consider_sale(last_transaction)
+    last_transaction[:type] == :sale ? consider_purchase : consider_sale
     puts "profit this run "+"#{@profit_this_run}".cyan
   end
 
-  def consider_purchase(last_sale)
+  def consider_purchase
+    last_sale = @transactionsDb.last :sale
     puts "Considering a purchase".green
 
     current_market_data = @marketDb.all_rows.last
@@ -63,8 +63,9 @@ class Trader
     #Bitstamp.orders.buy(amount: 1.0, price: 111)
   end
 
-  def consider_sale(last_purchase)
+  def consider_sale
     puts "Considering a sale".green
+    last_purchase = @transactionsDb.last :purchase
 
     current_market_data = @marketDb.all_rows.last
 

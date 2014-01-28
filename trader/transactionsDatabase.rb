@@ -23,7 +23,7 @@ class TransactionsDatabase < Database
       :btc => row[0],
       :btc_usd => row[1],
       :fee => row[2],
-      :type => row[3],
+      :type => row[3].to_sym,
       :timestamp => row[4],
     }
   end
