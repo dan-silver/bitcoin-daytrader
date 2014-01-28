@@ -20,7 +20,7 @@ class Trader
     @marketDb = MarketDatabase.new
 
     #@transactionsDb.insert 0.25, 745, 1.86, :purchase
-    #@transactionsDb.insert 0.02, 900, 0.09, :sale
+    @transactionsDb.insert 0.25, 772, 0.97, :sale
 
     @profit_this_run = 0 #not nil since it really is zero at this point
     #@current_market_data = nil
@@ -40,7 +40,7 @@ class Trader
     last_sale = @transactionsDb.last :sale
     puts "Considering a purchase".green
 
-    usd_avail = last_sale[:btc]*last_sale[:btc_usd]
+    usd_avail = last_sale[:btc] * last_sale[:btc_usd]
 
     last_bitcoin_market_value = last_sale[:btc_usd]
     current_bitcoin_market_value = @current_market_data[:btc_usd_buy]
@@ -49,7 +49,7 @@ class Trader
     
     puts "Current bitcoin price: $#{@current_market_data[:btc_usd_buy].usd_round}"
     puts "Waiting for a drop of #{@min_percent_drop*100}%"
-    puts "Percent change in bitcoin conversion value: " + "#{(percent_change*100).percent_round}%".cyan
+    puts "Percent change in bitcoin conversion value: " + "#{((percent_change*100).percent_round.to_s+"%").color_by_sign}"
     printPriceChanges
     if percent_change < @min_percent_drop
       puts "Minimum purchase threshold reached"
@@ -58,14 +58,11 @@ class Trader
   end
 
   def printPriceChanges
-    puts "Change over the last 2 minutes:"
-    puts getPriceChange "2 minutes"
-    puts "Change over the last 5 minutes:"
-    puts getPriceChange "5 minutes"
-    puts "Change over the last 20 minutes:"
-    puts getPriceChange "20 minutes"
-    puts "Change over the last hour:"
-    puts getPriceChange "1 hour"
+    times = ["1 minute", "2 minutes", "5 minutes", "20 minutes", "45 minutes"]
+    puts "Change over the last:"
+    times.each do |time|
+      puts "\t#{time}: #{getPriceChange(time)[:buy].usd_round.to_s.dollar_sign.color_by_sign}"
+    end
   end
 
   def purchase(btc_usd, usd_avail)
@@ -93,7 +90,7 @@ class Trader
     end
     puts "Current bitcoin price: $#{@current_market_data[:btc_usd_sell].usd_round}"
     puts "Waiting for a gain of #{@min_percent_gain*100}%"
-    puts "Percent change in bitcoin conversion value: " + "#{(percent_change*100).percent_round}%".cyan
+    puts "Percent change in bitcoin conversion value: " + "#{(percent_change*100).percent_round.color_by_sign}%"
   end
 
   def sell (btc_usd, btc_quantity)
@@ -136,7 +133,7 @@ class Trader
 
 end
 
-trader = Trader.new :percent_gain_for_sale => 0.01, :percent_change_for_purchase => -0.01
+trader = Trader.new :percent_gain_for_sale => 0.02, :percent_change_for_purchase => -0.01
 while true do
   puts "",("*"*50).cyan,""
   trader.trade
