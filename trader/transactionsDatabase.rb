@@ -28,7 +28,8 @@ class TransactionsDatabase < Database
     }
   end
 
-  def last(type)
-    @db.execute("SELECT * FROM #{@name} WHERE type='#{type.to_s}' ORDER BY timestamp DESC LIMIT 1").map{|r| convert_to_keys r}.first
+  def last(type=nil)
+    where_clause = type != nil ? "WHERE type='#{type.to_s}'" : ""
+    @db.execute("SELECT * FROM #{@name} #{where_clause} ORDER BY timestamp DESC LIMIT 1").map{|r| convert_to_keys r}.first
   end
 end

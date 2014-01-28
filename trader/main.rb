@@ -24,7 +24,7 @@ class Trader
   end
 
   def trade
-    last_transaction = @transactionsDb.all_rows.last
+    last_transaction = @transactionsDb.last
     puts "Last Transaction:".green
     puts last_transaction, ""
     last_transaction[:type] == :sale ? consider_purchase : consider_sale
