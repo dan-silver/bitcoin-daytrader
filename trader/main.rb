@@ -40,7 +40,7 @@ class Trader
     last_sale = @transactionsDb.last :sale
     puts "Considering a purchase".green
 
-    usd_avail = last_sale[:btc] * last_sale[:btc_usd]
+    usd_avail = last_sale[:btc] * last_sale[:btc_usd] - last_sale[:fee]
 
     last_bitcoin_market_value = last_sale[:btc_usd]
     current_bitcoin_market_value = @current_market_data[:btc_usd_buy]
