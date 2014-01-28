@@ -15,16 +15,21 @@ class Trader
       config.secret = ENV["BITSTAMP_SECRET"]
       config.client_id = ENV["BITSTAMP_CLIENT_ID"]
     end
+
     @transactionsDb = TransactionsDatabase.new
+    @marketDb = MarketDatabase.new
+
     #@transactionsDb.insert 0.25, 745, 1.86, :purchase
     #@transactionsDb.insert 0.02, 900, 0.09, :sale
-    @profit_this_run = 0 #not nil since it really is zero at this point
 
-    @marketDb = MarketDatabase.new
+    @profit_this_run = 0 #not nil since it really is zero at this point
+    #@current_market_data = nil
   end
 
   def trade
     last_transaction = @transactionsDb.last
+    @current_market_data = @marketDb.last_row
+
     puts "Last Transaction:".green
     puts last_transaction, ""
     last_transaction[:type] == :sale ? consider_purchase : consider_sale
@@ -35,22 +40,32 @@ class Trader
     last_sale = @transactionsDb.last :sale
     puts "Considering a purchase".green
 
-    current_market_data = @marketDb.last_row
-
     usd_avail = last_sale[:btc]*last_sale[:btc_usd]
 
     last_bitcoin_market_value = last_sale[:btc_usd]
-    current_bitcoin_market_value = current_market_data[:btc_usd_buy]
+    current_bitcoin_market_value = @current_market_data[:btc_usd_buy]
 
     percent_change = (current_bitcoin_market_value-last_bitcoin_market_value)/last_bitcoin_market_value
     
-    puts "Current bitcoin price: $#{current_market_data[:btc_usd_buy].usd_round}"
+    puts "Current bitcoin price: $#{@current_market_data[:btc_usd_buy].usd_round}"
     puts "Waiting for a drop of #{@min_percent_drop*100}%"
     puts "Percent change in bitcoin conversion value: " + "#{(percent_change*100).percent_round}%".cyan
+    printPriceChanges
     if percent_change < @min_percent_drop
       puts "Minimum purchase threshold reached"
       purchase current_bitcoin_market_value, usd_avail
     end
+  end
+
+  def printPriceChanges
+    puts "Change over the last 2 minutes:"
+    puts getPriceChange "2 minutes"
+    puts "Change over the last 5 minutes:"
+    puts getPriceChange "5 minutes"
+    puts "Change over the last 20 minutes:"
+    puts getPriceChange "20 minutes"
+    puts "Change over the last hour:"
+    puts getPriceChange "1 hour"
   end
 
   def purchase(btc_usd, usd_avail)
@@ -67,18 +82,16 @@ class Trader
     puts "Considering a sale".green
     last_purchase = @transactionsDb.last :purchase
 
-    current_market_data = @marketDb.last_row
-
     last_bitcoin_market_value = last_purchase[:btc_usd]
     
-    current_bitcoin_market_value = current_market_data[:btc_usd_sell]
+    current_bitcoin_market_value = @current_market_data[:btc_usd_sell]
     percent_change = (current_bitcoin_market_value-last_bitcoin_market_value)/last_bitcoin_market_value
-
+    printPriceChanges
     if percent_change > @min_percent_gain
       puts "Minimum sale threshold reached"
       sell current_bitcoin_market_value, last_purchase[:btc]
     end
-    puts "Current bitcoin price: $#{current_market_data[:btc_usd_sell].usd_round}"
+    puts "Current bitcoin price: $#{@current_market_data[:btc_usd_sell].usd_round}"
     puts "Waiting for a gain of #{@min_percent_gain*100}%"
     puts "Percent change in bitcoin conversion value: " + "#{(percent_change*100).percent_round}%".cyan
   end
@@ -113,6 +126,12 @@ class Trader
     money_made = btc_usd_current*btc_quantity-btc_usd_old*btc_quantity_old
     @profit_this_run += money_made
     @profit_this_run = @profit_this_run.usd_round
+  end
+
+  def getPriceChange(timechange)
+    return if @current_market_data == nil
+    res = @marketDb.convert_to_keys @marketDb.execute("select * from market where timestamp > datetime('now', 'localtime', '-#{timechange}') order by timestamp asc limit 1;").first
+    {:buy => @current_market_data[:btc_usd_buy] - res[:btc_usd_buy], :sell => @current_market_data[:btc_usd_sell] - res[:btc_usd_sell]}
   end
 
 end
