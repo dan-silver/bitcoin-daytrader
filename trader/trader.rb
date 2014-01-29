@@ -18,7 +18,7 @@ class Trader
 
     @transactionsDb = TransactionsDatabase.new
     @marketDb = MarketDatabase.new
-    @stats = TraderStats.new( @transactionsDb )
+    @stats = TraderStats.new( @transactionsDb, @marketDb)
     @fee = nil
 
     @transactionsDb.insert 0.235, 795, 0.90, :purchase
@@ -56,18 +56,10 @@ class Trader
     puts "Current bitcoin price: $#{@current_market_data[:btc_usd_buy].usd_round}"
     puts "Waiting for a drop of #{@min_percent_drop*100}%"
     puts "Percent change in bitcoin conversion value: " + "#{((btc_percent_change*100).percent_round.to_s+"%").color_by_sign}"
-    printPriceChanges :buy
+    @stats.printPriceChanges :buy
     if btc_percent_change < @min_percent_drop
       puts "Minimum purchase threshold reached"
       purchase current_bitcoin_market_value, usd_avail
-    end
-  end
-
-  def printPriceChanges(type)
-    times = ["1 minute", "2 minutes", "5 minutes", "20 minutes"]
-    puts "Change over the last:"
-    times.each do |time|
-      puts "\t#{time}: #{getPriceChange(time)[type].usd_round.to_s.dollar_sign.color_by_sign}"
     end
   end
 
@@ -90,7 +82,7 @@ class Trader
 
     current_bitcoin_market_value = @current_market_data[:btc_usd_sell]
     btc_percent_change = percent_change current_bitcoin_market_value, last_bitcoin_market_value
-    printPriceChanges :sell
+    @stats.printPriceChanges :sell
     puts "Current bitcoin price: $#{@current_market_data[:btc_usd_sell].usd_round}"
     puts "Waiting for a gain of #{@min_percent_gain*100}%"
     puts "Percent change in bitcoin conversion value: " + "#{((btc_percent_change*100).percent_round.to_s + "%").color_by_sign}"
@@ -126,11 +118,8 @@ class Trader
     refresh_fee
   end
 
-  def getPriceChange(timechange)
-    return if @current_market_data == nil
-    res = @marketDb.convert_to_keys @marketDb.execute("select * from market where timestamp > datetime('now', 'localtime', '-#{timechange}') order by timestamp asc limit 1;").first
-    {:buy => @current_market_data[:btc_usd_buy] - res[:btc_usd_buy], :sell => @current_market_data[:btc_usd_sell] - res[:btc_usd_sell]}
+  def stats
+    @stats
   end
 
-  
 end

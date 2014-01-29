@@ -1,9 +1,26 @@
+require 'colorize'
+load '../rounding.rb'
+
 class TraderStats
 
-  def initialize(transactionsDB)
+  def initialize(transactionsDB, marketDb)
   	@profit_this_run = 0
   	@transactionsDB = transactionsDB
-  	
+  	@marketDb = marketDb
+  end
+
+  def printPriceChanges(type)
+    times = ["1 minute", "2 minutes", "5 minutes", "20 minutes"]
+    puts "Change over the last:"
+    times.each do |time|
+      puts "\t#{time}: #{getPriceChange(time)[type].usd_round.to_s.dollar_sign.color_by_sign}"
+    end
+  end
+
+  def getPriceChange(timechange)
+    return if @marketDb.last_row == nil
+    res = @marketDb.convert_to_keys @marketDb.execute("select * from market where timestamp > datetime('now', 'localtime', '-#{timechange}') order by timestamp asc limit 1;").first
+    {:buy => @marketDb.last_row[:btc_usd_buy] - res[:btc_usd_buy], :sell => @marketDb.last_row[:btc_usd_sell] - res[:btc_usd_sell]}
   end
 
   def sale_confidence

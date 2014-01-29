@@ -10,6 +10,6 @@ format_stars ="",("*"*50).cyan,""
 while true do
   puts format_stars
   trader.trade
-  puts "Profit this run: $#{trader.profit.to_f.usd_round}"
+  puts "Profit this run: $#{trader.stats.profit.to_f.usd_round}"
   sleep seconds_between_trader_runs
 end
