@@ -66,7 +66,7 @@ class MarketDataPoint
   end
 
   def time_ago(now_point)
-    now_point.time.to_i - 
+    now_point.time.to_i - @time.to_i
   end
 
   def before? (time)
@@ -120,7 +120,7 @@ class MarketDataAggregator
     now = Time.new
     @array_of_data_points.map do |e| 
       e.weight = 0
-      unless !e.before? now-@most_recent_data_point || e.before? now-@most_distant_data_point)
+      unless !e.before? (now-@most_recent_data_point) || (e.before? now-@most_distant_data_point)
         e.weight = get_time_weight(now.to_i - e.time.to_i + @most_recent_time_to_acknowledge)
       end
     end
@@ -175,7 +175,7 @@ class MarketDataAggregator
   #you specify seconds ago min & seconds ago max to find a set of points
   def get_points_between_seconds_ago(recent_time, distant_time) 
     now = Time.new
-    if @old_weights assign_weights
+    assign_weights if @old_weights  
     timeset = @array_of_data_points.select { |e| e.time < now - recent_time && e.time > now - distant_time }
     timeset.reverse
   end
