@@ -53,16 +53,22 @@ class TraderStats
       #
       # the graph should be viewed as an Increase in weight backwards in time
       # starting at A going to B, and dipping at lowest to Mn, while peaking at Mx
-      @weight distribution = 'linear'
+      @weight_distribution = 'linear'
     end
 
     def most_recent_data_point
       @array_of_data_points[0]
     end
 
+    def most_distant_data_point
+      @array_of_data_points.last
+    end
+
     def place_data_point(data_point) 
       #it is invalid to place points in between, they may only be at end or beginning
-
+      return @array_of_data_points.unshift data_point if data_point.before most_recent_data_point[:time]  
+      return @array_of_data_points.push data_point    if data_point.after  most_distant_data_point[:time] 
+      false
     end
 
     #this function ONLY assembles, it does not make assumptions
@@ -73,13 +79,19 @@ class TraderStats
       time        = sqlite_market_data_row[:timestamp]
 
       now_data_point = most_recent_data_point
+      
+      return if now_data_point.nil? 
 
-      MarketDataPoint.new |market_data_point|
-        market_data_point[:sell_value_diff_in_usd] = now_data_point[:sell_value_in_usd]-sell_value
-        market_data_point[:buy_value_diff_in_usd] = now_data_point[:buy_value_in_usd]-buy_value
-        market_data_point[]
+      MarketDataPoint.new do |m|
+        m.sell_value_diff_in_usd  = now_data_point[:sell_value_in_usd]-sell_value
+        m.buy_value_diff_in_usd   = now_data_point[:buy_value_in_usd]-buy_value
+        
+        m.buy_value_in_usd        = buy_value
+        m.sell_value_in_usd       = sell_value
 
+        m.time = time
       end
+
     end
   end
 
@@ -92,15 +104,12 @@ class TraderStats
     
     def initialize
       yield self if block_given?
-
-      @sell_value_diff_in_usd = sqlite_market_data_row
-      @buy_value_diff_in_usd  = nil
-      @time                   = nil
-      
-      @weight = nil
-
-
     end
+
+    def before? (time)
+       @time < time
+    end
+
   end
 
   def sale_confidence
@@ -145,5 +154,4 @@ class TraderStats
   def profit
     @profit_this_run
   end
-
 end
