@@ -1,11 +1,32 @@
 require 'colorize'
-load 'trader.rb'
+require 'bitstamp'
 
-trader = Trader.new :percent_gain_for_sale => 0.012, :percent_change_for_purchase => -0.01
+load 'transactionsDatabase.rb'
+load 'trader.rb'
+load 'marketDatabase.rb'
+
 seconds_between_trader_runs = 5
+
+Bitstamp.setup do |config|
+  config.key = ENV["BITSTAMP_KEY"]
+  config.secret = ENV["BITSTAMP_SECRET"]
+  config.client_id = ENV["BITSTAMP_CLIENT_ID"]
+end
+
+transactionsDb = TransactionsDatabase.new
+marketDb = MarketDatabase.new
+traderStats = TraderStats.new transactionsDb, marketDb
+
+trader = Trader.new do |t|
+  t.min_percent_gain = 0.012
+  t.min_percent_drop = -0.01
+  t.transactionsDb = transactionsDb
+  t.marketDb = marketDb
+  t.stats = traderStats
+end
+
 #formatting
 format_stars ="",("*"*50).cyan,""
-
 
 while true do
   puts format_stars
