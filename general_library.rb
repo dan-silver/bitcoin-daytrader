@@ -1,4 +1,3 @@
-
 class Float
   require 'colorize'
   def btc_round

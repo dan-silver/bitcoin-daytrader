@@ -5,7 +5,7 @@ load 'trader.rb'
 load 'traderStats.rb'
 load 'transactionsDatabase.rb'
 load 'marketDatabase.rb'
-load '../rounding.rb'
+load '../general_library.rb'
 
 seconds_between_trader_runs = 5
 
