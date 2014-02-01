@@ -42,9 +42,12 @@ end
 minute = 60
 halfhour = 1800
 hour = 3600
-# marketDataAggregator.report 2*minute, halfhour
-jitter = marketDataAggregator.get_jitter_since_seconds_ago halfhour
-puts jitter.second
+#marketDataAggregator.report 2*minute, halfhour
+#jitter = marketDataAggregator.get_jitter_since_seconds_ago halfhour
+#puts jitter
+#deltas = marketDataAggregator.get_deltas_since_seconds_ago halfhour
+#puts deltas
+
 '''
 
 while true do
