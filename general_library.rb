@@ -34,3 +34,7 @@ end
 def percent_change (n, o)
   (n - o) / o
 end
+
+def format_stars
+  return "",("*"*50).cyan,""
+end
