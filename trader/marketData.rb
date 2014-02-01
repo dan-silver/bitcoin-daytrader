@@ -13,7 +13,7 @@ class MarketData
     ticker = Bitstamp.ticker
     @buy, @sell = ticker.ask.to_f, ticker.bid.to_f
 
-    adjust_speed
+    #adjust_speed
     database_insert_success = false
     while !database_insert_success
       begin
