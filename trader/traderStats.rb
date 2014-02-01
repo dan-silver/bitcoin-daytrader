@@ -114,7 +114,7 @@ class MarketDataAggregator
   end
 
   def most_recent_data_point
-    @array_of_data_points[0]
+    @array_of_data_points.first
   end
 
   def most_distant_data_point
