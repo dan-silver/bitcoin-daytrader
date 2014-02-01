@@ -61,8 +61,16 @@ class MarketDataPoint
     now_point.buy_value_in_usd - @buy_value_in_usd
   end
 
+  def btc_buy_value_change_perc(now_point)#relative to now, since otherwise it'd be crazy to think about
+    (now_point.buy_value_in_usd - @buy_value_in_usd)/now_point.buy_value_in_usd
+  end
+
   def btc_sell_value_change_usd(now_point)
     now_point.sell_value_in_usd - @sell_value_in_usd    
+  end
+
+  def btc_sell_value_change_perc(now_point)
+    (now_point.sell_value_in_usd - @sell_value_in_usd)/now_point.sell_value_in_usd
   end
 
   def time_ago(now_point)
@@ -94,9 +102,6 @@ class MarketDataAggregator
     @most_recent_time_to_acknowledge = 30
     @most_distant_time_to_acknowledge = 3600
     
-    #confidence can't be negative, but I think that makes this more intuitive
-    @weight_spread = 200
-
     # if the max and min are Mx and Mn,
     # 
     # A is most recent
@@ -111,14 +116,14 @@ class MarketDataAggregator
 
   def get_confidence_points_since(time_ago)
     get_points_between_seconds_ago(1,time_ago).inject([]) { |ary, e| 
-      ary << {buy_conf: e.weight*e.btc_buy_value_change_usd, sell_conf: e.weight*e.btc_sell_value_change_usd} 
+      ary << {sell_conf: (-e.weight*e.btc_sell_value_change_perc(most_recent_data_point)).usd_round, weight:e.weight, time: e.time, value_then:e.sell_value_in_usd} 
     }
   end
 
   #add the logic for linear vs log etc. here
   def get_time_weight(time_ago)
-    return time_ago/@weight_spread if @weight_distribution == 'linear'
-    return Math.log(time_ago)/@weight_spread if (@weight_distribution == 'log')
+    return (time_ago.to_f) if @weight_distribution == 'linear'
+    return Math.log(time_ago) if (@weight_distribution == 'log')
   end
 
   def assign_weights
