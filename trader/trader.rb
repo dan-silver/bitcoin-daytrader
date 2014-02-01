@@ -1,23 +1,15 @@
-load 'transactionsDatabase.rb'
-load 'marketDatabase.rb'
 load '../rounding.rb'
 load 'traderStats.rb'
 
 class Trader
-  def initialize(options)
-    @min_percent_gain = options[:percent_gain_for_sale]
-    @min_percent_drop = options[:percent_change_for_purchase]
-
-    @transactionsDb = TransactionsDatabase.new
-    @marketDb = MarketDatabase.new
-    @stats = TraderStats.new( @transactionsDb, @marketDb)
+  attr_accessor :min_percent_gain, :min_percent_drop, :transactionsDb, :marketDb, :stats
+  def initialize
     @fee = nil
 
-    @transactionsDb.insert 0.235, 795, 0.90, :purchase
+    #@transactionsDb.insert 0.235, 795, 0.90, :purchase
     #@transactionsDb.insert 0.25, 772, 0.97, :sale
-
-    #@current_market_data = nil
     refresh_fee
+    yield self if block_given?
   end
 
   def refresh_fee
