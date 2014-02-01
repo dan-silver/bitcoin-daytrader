@@ -52,6 +52,6 @@ while true do
   latest_row = marketDb.last_row #dear god this needs to be rethought
   row_data_point = marketDataAggregator.assemble_data_point_from_row latest_row
   marketDataAggregator.place_data_point row_data_point
-  puts (marketDataAggregator.get_jitter_since_seconds_ago halfhour).first
+  puts (marketDataAggregator.get_jitter_since_seconds_ago 30.minutes).first
   sleep 5.seconds
 end
