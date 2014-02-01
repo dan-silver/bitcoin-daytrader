@@ -13,6 +13,7 @@ class Trader
 
   def trade
     last_transaction = @transactionsDb.last
+    @last_purchase = @transactionsDb.last :purchase
     @current_market_data = @marketDb.last_row
 
     puts "Last Transaction:".green
@@ -60,7 +61,18 @@ class Trader
         puts "Current bitcoin sell price: $#{@current_market_data[:btc_usd_sell].usd_round}"
         puts "Waiting for a gain of #{@min_percent_gain*100}%"
         puts "Percent change in bitcoin conversion value: " + "#{((btc_percent_change(:type)*100).percent_round.to_s + "%").color_by_sign}"
+        puts "If sold right now, you would make #{("$" + potential_profit.usd_round.to_s).color_by_sign}"
    end
+  end
+
+  def potential_profit
+    amount_to_receive_if_sold_now = @current_market_data[:btc_usd_sell] * @last_purchase[:btc]
+    amount_to_receive_if_sold_now -= @fee * amount_to_receive_if_sold_now
+    amount_to_receive_if_sold_now - amount_spent_on_last_purchase
+  end
+
+  def amount_spent_on_last_purchase
+    @last_purchase[:btc] * @last_purchase[:btc_usd] + @last_purchase[:fee]
   end
 
   def purchase(btc_usd, usd_avail)
@@ -90,7 +102,7 @@ class Trader
 
   def sell (btc_usd, btc_quantity)
     puts "Selling!".light_green
-    fee = btc_usd * btc_quantity * 0.005
+    fee = btc_usd * btc_quantity * @fee
     begin
       #Bitstamp.orders.sell(amount: 1.0, price: 111)
     rescue Exception => e
@@ -101,7 +113,6 @@ class Trader
       begin
         @transactionsDb.insert btc_quantity, btc_usd, fee, :sale
         transaction_success = true
-        @stats.update_profit btc_usd, btc_quantity, fee
       rescue Exception => e
         puts "failure recording transaction, retrying",e
         transaction_success = false
