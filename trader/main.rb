@@ -1,9 +1,12 @@
 require 'colorize'
 require 'bitstamp'
 
-load 'transactionsDatabase.rb'
 load 'trader.rb'
+load 'traderStats.rb'
+load 'transactionsDatabase.rb'
 load 'marketDatabase.rb'
+load 'marketData.rb'
+load '../general_library.rb'
 
 seconds_between_trader_runs = 5
 
@@ -13,9 +16,10 @@ Bitstamp.setup do |config|
   config.client_id = ENV["BITSTAMP_CLIENT_ID"]
 end
 
-transactionsDb = TransactionsDatabase.new
-marketDb = MarketDatabase.new
-traderStats = TraderStats.new transactionsDb, marketDb
+transactionsDb    = TransactionsDatabase.new
+marketDb          = MarketDatabase.new
+traderStats       = TraderStats.new transactionsDb, marketDb
+marketDataFetcher = MarketData.new marketDb
 
 trader = Trader.new do |t|
   t.min_percent_gain = 0.012
@@ -25,10 +29,8 @@ trader = Trader.new do |t|
   t.stats = traderStats
 end
 
-#formatting
-format_stars ="",("*"*50).cyan,""
-
 while true do
+  marketDataFetcher.fetch
   puts format_stars
   trader.trade
   puts "Profit this run: $#{trader.stats.profit.to_f.usd_round}"

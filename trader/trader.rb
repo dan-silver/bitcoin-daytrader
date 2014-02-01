@@ -1,12 +1,6 @@
-load '../rounding.rb'
-load 'traderStats.rb'
-
 class Trader
   attr_accessor :min_percent_gain, :min_percent_drop, :transactionsDb, :marketDb, :stats
   def initialize
-    @fee = nil
-
-    #@transactionsDb.insert 0.235, 795, 0.90, :purchase
     #@transactionsDb.insert 0.25, 772, 0.97, :sale
     refresh_fee
     yield self if block_given?
@@ -84,8 +78,6 @@ class Trader
 
   def consider_sale
     last_purchase = @transactionsDb.last :purchase
-
-    #current_bitcoin_market_value = @current_market_data[:btc_usd_sell]
     @stats.printPriceChanges :sell
     #puts "Sale_confidence: #{@stats.sale_confidence}"
     btc_percent_change(:consider_sale) > @min_percent_gain
@@ -117,9 +109,5 @@ class Trader
       end
     end
     refresh_fee
-  end
-
-  def stats
-    @stats
   end
 end

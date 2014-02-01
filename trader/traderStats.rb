@@ -1,6 +1,3 @@
-require 'colorize'
-load '../rounding.rb'
-
 class TraderStats
 
   def initialize(transactionsDB, marketDb)

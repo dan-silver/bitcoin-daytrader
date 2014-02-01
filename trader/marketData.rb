@@ -1,8 +1,6 @@
 class MarketData
-  load 'marketDatabase.rb'
-
-  def initialize
-    @marketDb = MarketDatabase.new
+  def initialize(marketDb)
+    @marketDb = marketDb
     @buy, @sell = nil
     @speed_samples = []
     @buy_speed_average, @sell_speed_average = nil
