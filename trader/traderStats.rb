@@ -123,8 +123,22 @@ class MarketDataAggregator
     @weight_distribution = 'linear'
   end
 
+  #get the average fluctuation between points as hash of buy: sell:
+  def get_jitter_since_seconds_ago(seconds_ago)
+    data_points_since_then = get_points_between_seconds_ago(1,seconds_ago)
+    data_points_since_then.inject([]) { |num_list, elem| num_list << 
+      {
+        buy_jitter: (elem.buy_value_in_usd - (num_list.last.nil? ? 0 : num_list.last[:buy].to_i)).abs, 
+        sell_jitter: (elem.sell_value_in_usd - (num_list.last.nil? ? 0 : num_list.last[:sell].to_i)).abs,
+        buy: elem.buy_value_in_usd,
+        sell: elem.sell_value_in_usd,
+        time: elem.time
+      }
+    }
+  end
+
   #you specify seconds ago min & seconds ago max to find a set of points
-  def get_points_between_times_ago(recent_time, distant_time) 
+  def get_points_between_seconds_ago(recent_time, distant_time) 
     now = Time.new
     timeset = @array_of_data_points.select { |e| e.time < now - recent_time && e.time > now - distant_time }
   end
