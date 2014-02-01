@@ -6,7 +6,7 @@ class MarketData
     @buy, @sell = nil
     @speed_samples = []
     @buy_speed_average, @sell_speed_average = nil
-    populate_speed_array 60
+    #populate_speed_array 60
   end
 
   def fetch
