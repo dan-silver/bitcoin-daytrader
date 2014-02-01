@@ -169,15 +169,10 @@ class MarketDataAggregator
   #this function ONLY assembles, it does not make assumptions
   #about the organization of the data
   def assemble_data_point_from_row(market_data_row)
-    buy_value   = market_data_row[:btc_usd_buy]
-    sell_value  = market_data_row[:btc_usd_sell]
-    time        = market_data_row[:timestamp]
-
     MarketDataPoint.new do |m|
-      m.buy_value_in_usd  = buy_value
-      m.sell_value_in_usd = sell_value
-      m.time = time
+      m.buy_value_in_usd  = market_data_row[:btc_usd_buy]
+      m.sell_value_in_usd = market_data_row[:btc_usd_sell]
+      m.time = market_data_row[:timestamp]
     end
-
   end
 end
