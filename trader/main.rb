@@ -35,15 +35,16 @@ sample_rows.each do |row|
   marketDataAggregator.place_data_point aggregator.assemble_data_point_from_row row 
 end
 
+'''
+#puts marketDataAggregator.most_recent_data_point
 
-# puts marketDataAggregator.most_recent_data_point.buy_value_in_usd
-
-#marketDataAggregator.report 2*minute, halfhour
-#jitter = marketDataAggregator.get_jitter_since_seconds_ago halfhour
+#marketDataAggregator.report 2.minutes, 30.minutes
+#jitter = marketDataAggregator.get_jitter_since_seconds_ago 30.minutes
 #puts jitter
-#deltas = marketDataAggregator.get_deltas_since_seconds_ago 30.minutes
-#puts deltas
+deltas = marketDataAggregator.get_deltas_since 30.minutes
+puts deltas
 
+'''
 while true do
   marketDataFetcher.fetch
   puts format_stars
@@ -53,5 +54,11 @@ while true do
   row_data_point = marketDataAggregator.assemble_data_point_from_row latest_row
   marketDataAggregator.place_data_point row_data_point
   puts (marketDataAggregator.get_jitter_since_seconds_ago 30.minutes).first
+
+'''
+  puts "*".red * 30
+  puts marketDataAggregator.match_deltas_with_weights 10.minutes, :buy_delta
+  puts "*".red * 30
+'''
   sleep 5.seconds
 end
