@@ -41,8 +41,8 @@ end
 #marketDataAggregator.report 2*minute, halfhour
 #jitter = marketDataAggregator.get_jitter_since_seconds_ago halfhour
 #puts jitter
-deltas = marketDataAggregator.get_deltas_since_seconds_ago 30.minutes
-puts deltas
+#deltas = marketDataAggregator.get_deltas_since_seconds_ago 30.minutes
+#puts deltas
 
 while true do
   marketDataFetcher.fetch
