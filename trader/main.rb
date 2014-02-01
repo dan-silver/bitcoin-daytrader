@@ -8,8 +8,6 @@ load 'marketDatabase.rb'
 load 'marketData.rb'
 load '../general_library.rb'
 
-seconds_between_trader_runs = 5
-
 Bitstamp.setup do |config|
   config.key = ENV["BITSTAMP_KEY"]
   config.secret = ENV["BITSTAMP_SECRET"]
@@ -39,14 +37,12 @@ end
 
 
 # puts marketDataAggregator.most_recent_data_point.buy_value_in_usd
-minute = 60
-halfhour = 1800
-hour = 3600
+
 #marketDataAggregator.report 2*minute, halfhour
 #jitter = marketDataAggregator.get_jitter_since_seconds_ago halfhour
 #puts jitter
-#deltas = marketDataAggregator.get_deltas_since_seconds_ago halfhour
-#puts deltas
+deltas = marketDataAggregator.get_deltas_since_seconds_ago 30.minutes
+puts deltas
 
 while true do
   marketDataFetcher.fetch
@@ -57,5 +53,5 @@ while true do
   row_data_point = marketDataAggregator.assemble_data_point_from_row latest_row
   marketDataAggregator.place_data_point row_data_point
   puts (marketDataAggregator.get_jitter_since_seconds_ago halfhour).first
-  sleep seconds_between_trader_runs
+  sleep 5.seconds
 end

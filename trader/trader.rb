@@ -3,7 +3,7 @@ class Trader
   def initialize
     yield self if block_given?
     refresh_fee
-    @transactionsDb.insert 0.15861871, 795, 0.59, :purchase
+    @transactionsDb.insert 0.15861871, 795, 0.59, :sale
   end
 
   def refresh_fee
