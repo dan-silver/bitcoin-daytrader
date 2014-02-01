@@ -1,6 +1,7 @@
 load '../data/database.rb'
 
 class MarketDatabase < Database
+  require 'date'
   def initialize
     @name = "market"
     @columns = [
@@ -21,7 +22,7 @@ class MarketDatabase < Database
     {
       :btc_usd_buy => row[0],
       :btc_usd_sell => row[1],
-      :timestamp => row[2]
+      :timestamp => Time.parse(row[2])
     }
   end
 

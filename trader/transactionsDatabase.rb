@@ -1,6 +1,7 @@
 load '../data/database.rb'
 
 class TransactionsDatabase < Database
+  require 'time'
   def initialize
     @name = "transactions"
     @columns = [
@@ -24,7 +25,7 @@ class TransactionsDatabase < Database
       :btc_usd => row[1],
       :fee => row[2],
       :type => row[3].to_sym,
-      :timestamp => row[4],
+      :timestamp => Time.parse(row[4]),
     }
   end
 
