@@ -1,6 +1,3 @@
-load '../rounding.rb'
-load 'traderStats.rb'
-
 class Trader
   attr_accessor :min_percent_gain, :min_percent_drop, :transactionsDb, :marketDb, :stats
   def initialize

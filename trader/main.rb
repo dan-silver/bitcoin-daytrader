@@ -1,9 +1,11 @@
 require 'colorize'
 require 'bitstamp'
 
-load 'transactionsDatabase.rb'
 load 'trader.rb'
+load 'traderStats.rb'
+load 'transactionsDatabase.rb'
 load 'marketDatabase.rb'
+load '../rounding.rb'
 
 seconds_between_trader_runs = 5
 
