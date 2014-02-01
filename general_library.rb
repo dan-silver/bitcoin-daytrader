@@ -9,6 +9,23 @@ class Float
   def percent_round
     self.round 2
   end
+
+
+end
+
+class Fixnum
+  def minute
+    self.minutes
+  end
+  def minutes
+    self * 60
+  end
+  def hour
+    self.hours
+  end
+  def hours
+    self.minutes * 60
+  end
 end
 
 class String
