@@ -37,26 +37,62 @@ class TraderStats
 
     def initialize
       @array_of_data_points = []
+
+      #earliest and latest points, all in between will be gathered
       @most_recent_time_to_acknowledge = '2 minutes'
       @most_distant_time_to_acknowledge = '14 days'
+      
+      #min and max weights
+      @min_weight = -15
+      @max_weight = 200
+
+      # if the max and min are Mx and Mn,
+      # 
+      # A is most recent
+      # B is most distant
+      #
+      # the graph should be viewed as an Increase in weight backwards in time
+      # starting at A going to B, and dipping at lowest to Mn, while peaking at Mx
+      @weight distribution = 'linear'
     end
 
-    def assemble_data_point_from_row(sqlite_market_data_row)
+    def most_recent_data_point
+      @array_of_data_points[0]
+    end
 
+    def place_data_point(data_point) 
+      #it is invalid to place points in between, they may only be at end or beginning
+
+    end
+
+    #this function ONLY assembles, it does not make assumptions
+    #about the organization of the data
+    def assemble_data_point_from_row(sqlite_market_data_row)
+      buy_value   = sqlite_market_data_row[:btc_usd_buy]
+      sell_value  = sqlite_market_data_row[:btc_usd_sell]
+      time        = sqlite_market_data_row[:timestamp]
+
+      now_data_point = most_recent_data_point
+
+      MarketDataPoint.new |market_data_point|
+        market_data_point[:sell_value_diff_in_usd] = now_data_point[:sell_value_in_usd]-sell_value
+        market_data_point[:buy_value_diff_in_usd] = now_data_point[:buy_value_in_usd]-buy_value
+        market_data_point[]
+
+      end
     end
   end
 
   #and this class as the books in the library
   class MarketDataPoint
     
-    attr_reader :sell_value_diff_in_usd
-    attr_reader :buy_value_diff_in_usd
-    attr_reader :time
+    attr_reader :sell_value_diff_in_usd, :buy_value_diff_in_usd, :buy_value_in_usd, :sell_value_in_usd, :time
 
     attr_accessor :weight
     
-    def initialize(market_data_aggregator)
-      
+    def initialize
+      yield self if block_given?
+
       @sell_value_diff_in_usd = sqlite_market_data_row
       @buy_value_diff_in_usd  = nil
       @time                   = nil
