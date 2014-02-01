@@ -1,3 +1,4 @@
+load '../general_library.rb'
 class TraderStats
   def initialize(marketDb)
   	@marketDb = marketDb
@@ -50,8 +51,7 @@ class TraderStats
 end
 
 class MarketDataPoint
-  attr_accessor :buy_value_in_usd, :sell_value_in_usd, :time
-  attr_accessor :weight
+  attr_accessor :buy_value_in_usd, :sell_value_in_usd, :time, :weight, :confidence
 
   def initialize
     yield self if block_given?
@@ -63,6 +63,10 @@ class MarketDataPoint
 
   def btc_sell_value_change_usd(now_point)
     now_point.sell_value_in_usd - @sell_value_in_usd    
+  end
+
+  def time_ago(now_point)
+    now_point.time.to_i - 
   end
 
   def before? (time)
@@ -87,12 +91,11 @@ class MarketDataAggregator
     @array_of_data_points = []
 
     #earliest and latest points, all in between will be gathered
-    @most_recent_time_to_acknowledge = '2 minutes'
-    @most_distant_time_to_acknowledge = '14 days'
+    @most_recent_time_to_acknowledge = 30
+    @most_distant_time_to_acknowledge = 3600
     
-    #min and max weights
-    @min_weight = -15
-    @max_weight = 200
+    #confidence can't be negative, but I think that makes this more intuitive
+    @weight_spread = 200
 
     # if the max and min are Mx and Mn,
     # 
@@ -102,7 +105,27 @@ class MarketDataAggregator
     # the graph should be viewed as an Increase in weight backwards in time
     # starting at A going to B, and dipping at lowest to Mn, while peaking at Mx
     @weight_distribution = 'linear'
+
+    @old_weights = false
   end
+
+  #add the logic for log etc. here
+  def get_time_weight(time_ago)
+    return time_ago/(@max_weight-@min_weight) if @weight_distribution == 'linear'
+    return Math.log(time_ago)/(@max_weight-@min_weight) if (@weight_distribution == 'log')
+  end
+
+  def assign_weights
+    @old_weights = false
+    now = Time.new
+    @array_of_data_points.map do |e| 
+      e.weight = 0
+      unless !e.before? now-@most_recent_data_point || e.before? now-@most_distant_data_point)
+        e.weight = get_time_weight(now.to_i - e.time.to_i + @most_recent_time_to_acknowledge)
+      end
+    end
+  end
+
 
   #a running set of points showing the differences between points over time
   def get_deltas_since_seconds_ago(seconds_ago)
@@ -139,6 +162,7 @@ class MarketDataAggregator
   #you specify seconds ago min & seconds ago max to find a set of points
   def get_points_between_seconds_ago(recent_time, distant_time) 
     now = Time.new
+    if @old_weights assign_weights
     timeset = @array_of_data_points.select { |e| e.time < now - recent_time && e.time > now - distant_time }
     timeset.reverse
   end
@@ -157,6 +181,7 @@ class MarketDataAggregator
 
   #this function adds the point to the array where it belongs if it can
   def place_data_point(data_point)
+    @old_weights = true #the weights need to be re-updated
     #it is invalid to place points in between, they may only be at end or beginning
     return @array_of_data_points.unshift data_point if most_recent_data_point.nil?
     return @array_of_data_points.unshift data_point if data_point.before? most_recent_data_point.time  
