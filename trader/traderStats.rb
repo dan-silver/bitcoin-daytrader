@@ -20,95 +20,6 @@ class TraderStats
     {:buy => @marketDb.last_row[:btc_usd_buy] - res[:btc_usd_buy], :sell => @marketDb.last_row[:btc_usd_sell] - res[:btc_usd_sell]}
   end
 
-  #I am wanting to think about this class as
-  #the librarian/library system
-  #this may seem silly since we have databases
-  #however, this is intended to reduce calls to the database
-  #make the data easier to get to
-  #and create whole sets of derived data, which are also easy to get to
-  #this 'data' is all stored in the MarketDataPoint
-  #it may be reasonable to create a MarketDataLandmark class
-  #or something that is not 100% coupled to time, simply for
-  #reference
-  class MarketDataAggregator
-
-    def initialize
-      @array_of_data_points = []
-
-      #earliest and latest points, all in between will be gathered
-      @most_recent_time_to_acknowledge = '2 minutes'
-      @most_distant_time_to_acknowledge = '14 days'
-      
-      #min and max weights
-      @min_weight = -15
-      @max_weight = 200
-
-      # if the max and min are Mx and Mn,
-      # 
-      # A is most recent
-      # B is most distant
-      #
-      # the graph should be viewed as an Increase in weight backwards in time
-      # starting at A going to B, and dipping at lowest to Mn, while peaking at Mx
-      @weight_distribution = 'linear'
-    end
-
-    def most_recent_data_point
-      @array_of_data_points[0]
-    end
-
-    def most_distant_data_point
-      @array_of_data_points.last
-    end
-
-    def place_data_point(data_point) 
-      #it is invalid to place points in between, they may only be at end or beginning
-      return @array_of_data_points.unshift data_point if data_point.before most_recent_data_point[:time]  
-      return @array_of_data_points.push data_point    if data_point.after  most_distant_data_point[:time] 
-      false
-    end
-
-    #this function ONLY assembles, it does not make assumptions
-    #about the organization of the data
-    def assemble_data_point_from_row(sqlite_market_data_row)
-      buy_value   = sqlite_market_data_row[:btc_usd_buy]
-      sell_value  = sqlite_market_data_row[:btc_usd_sell]
-      time        = sqlite_market_data_row[:timestamp]
-
-      now_data_point = most_recent_data_point
-      
-      return if now_data_point.nil? 
-
-      MarketDataPoint.new do |m|
-        m.sell_value_diff_in_usd  = now_data_point[:sell_value_in_usd]-sell_value
-        m.buy_value_diff_in_usd   = now_data_point[:buy_value_in_usd]-buy_value
-        
-        m.buy_value_in_usd        = buy_value
-        m.sell_value_in_usd       = sell_value
-
-        m.time = time
-      end
-
-    end
-  end
-
-  #and this class as the books in the library
-  class MarketDataPoint
-    
-    attr_reader :sell_value_diff_in_usd, :buy_value_diff_in_usd, :buy_value_in_usd, :sell_value_in_usd, :time
-
-    attr_accessor :weight
-    
-    def initialize
-      yield self if block_given?
-    end
-
-    def before? (time)
-       @time < time
-    end
-
-  end
-
   def sale_confidence
     #ben's notes:
     #get the data back to a certain point in time, and disregard the last X time of data
@@ -150,5 +61,93 @@ class TraderStats
 
   def profit
     @profit_this_run
+  end
+end
+
+class MarketDataPoint
+  
+  attr_reader :sell_value_diff_in_usd, :buy_value_diff_in_usd, :buy_value_in_usd, :sell_value_in_usd, :time
+
+  attr_accessor :weight
+  
+  def initialize
+    yield self if block_given?
+  end
+
+  def before? (time)
+     @time < time
+  end
+
+end
+
+#I am wanting to think about this class as
+#the librarian/library system
+#this may seem silly since we have databases
+#however, this is intended to reduce calls to the database
+#make the data easier to get to
+#and create whole sets of derived data, which are also easy to get to
+#this 'data' is all stored in the MarketDataPoint
+#it may be reasonable to create a MarketDataLandmark class
+#or something that is not 100% coupled to time, simply for
+#reference
+class MarketDataAggregator
+
+  def initialize
+    @array_of_data_points = []
+
+    #earliest and latest points, all in between will be gathered
+    @most_recent_time_to_acknowledge = '2 minutes'
+    @most_distant_time_to_acknowledge = '14 days'
+    
+    #min and max weights
+    @min_weight = -15
+    @max_weight = 200
+
+    # if the max and min are Mx and Mn,
+    # 
+    # A is most recent
+    # B is most distant
+    #
+    # the graph should be viewed as an Increase in weight backwards in time
+    # starting at A going to B, and dipping at lowest to Mn, while peaking at Mx
+    @weight_distribution = 'linear'
+  end
+
+  def most_recent_data_point
+    @array_of_data_points[0]
+  end
+
+  def most_distant_data_point
+    @array_of_data_points.last
+  end
+
+  def place_data_point(data_point) 
+    #it is invalid to place points in between, they may only be at end or beginning
+    return @array_of_data_points.unshift data_point if data_point.before most_recent_data_point[:time]  
+    return @array_of_data_points.push data_point    if data_point.after  most_distant_data_point[:time] 
+    false
+  end
+
+  #this function ONLY assembles, it does not make assumptions
+  #about the organization of the data
+  def assemble_data_point_from_row(sqlite_market_data_row)
+    buy_value   = sqlite_market_data_row[:btc_usd_buy]
+    sell_value  = sqlite_market_data_row[:btc_usd_sell]
+    time        = sqlite_market_data_row[:timestamp]
+
+    now_data_point = most_recent_data_point
+
+    return if now_data_point.nil? 
+
+    MarketDataPoint.new do |m|
+      m.sell_value_diff_in_usd  = now_data_point[:sell_value_in_usd]-sell_value
+      m.buy_value_diff_in_usd   = now_data_point[:buy_value_in_usd]-buy_value
+      
+      m.buy_value_in_usd        = buy_value
+      m.sell_value_in_usd       = sell_value
+
+      m.time = time
+    end
+
   end
 end

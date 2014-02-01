@@ -29,6 +29,9 @@ trader = Trader.new do |t|
   t.stats = traderStats
 end
 
+aggregator = MarketDataAggregator.new
+puts aggregator.assemble_data_point_from_row marketDb.last_row
+'''
 while true do
   marketDataFetcher.fetch
   puts format_stars
@@ -36,3 +39,4 @@ while true do
   puts "Profit this run: $#{trader.stats.profit.to_f.usd_round}"
   sleep seconds_between_trader_runs
 end
+'''
