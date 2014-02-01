@@ -109,10 +109,16 @@ class MarketDataAggregator
     @old_weights = false
   end
 
-  #add the logic for log etc. here
+  def get_confidence_points_since(time_ago)
+    get_points_between_seconds_ago(1,time_ago).inject([]) { |ary, e| 
+      ary << {buy_conf: e.weight*e.btc_buy_value_change_usd, sell_conf: e.weight*e.btc_sell_value_change_usd} 
+    }
+  end
+
+  #add the logic for linear vs log etc. here
   def get_time_weight(time_ago)
-    return time_ago/(@max_weight-@min_weight) if @weight_distribution == 'linear'
-    return Math.log(time_ago)/(@max_weight-@min_weight) if (@weight_distribution == 'log')
+    return time_ago/@weight_spread if @weight_distribution == 'linear'
+    return Math.log(time_ago)/@weight_spread if (@weight_distribution == 'log')
   end
 
   def assign_weights
@@ -120,7 +126,7 @@ class MarketDataAggregator
     now = Time.new
     @array_of_data_points.map do |e| 
       e.weight = 0
-      unless !e.before? (now-@most_recent_data_point) || (e.before? now-@most_distant_data_point)
+      unless !e.before? (now-@most_recent_time_to_acknowledge) || (e.before? now-@most_distant_time_to_acknowledge)
         e.weight = get_time_weight(now.to_i - e.time.to_i + @most_recent_time_to_acknowledge)
       end
     end
