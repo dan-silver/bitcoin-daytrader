@@ -38,6 +38,7 @@ sample_rows.each do |row|
 end
 puts marketDataAggregator.array_of_data_points
 '''
+
 while true do
   marketDataFetcher.fetch
   puts format_stars

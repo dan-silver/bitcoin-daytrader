@@ -124,11 +124,15 @@ class MarketDataAggregator
   end
 
   def most_recent_data_point
-    @array_of_data_points.first
+    most_recent = @array_of_data_points.first
+    return most_recent if !most_recent.nil?
+    {time: Time.parse('1969-01-01 00:00:00 -0600')}
   end
 
   def most_distant_data_point
-    @array_of_data_points.last
+    most_distant = @array_of_data_points.last
+    return most_distant if !most_distant.nil?
+    {time: Time.parse('1969-01-01 00:00:00 -0600')}
   end
 
   def place_data_point(data_point)
