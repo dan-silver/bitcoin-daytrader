@@ -36,7 +36,6 @@ sample_rows = marketDb.last_rows 15
 sample_rows.each do |row|
   marketDataAggregator.place_data_point aggregator.assemble_data_point_from_row row 
 end
-puts marketDataAggregator.array_of_data_points
 '''
 
 while true do

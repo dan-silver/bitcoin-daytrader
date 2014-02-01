@@ -102,6 +102,7 @@ end
 #reference
 class MarketDataAggregator
 
+  Epoc = Time.parse("1969-01-01 00:00:00 -0600")
   def initialize
     @array_of_data_points = []
 
@@ -126,19 +127,18 @@ class MarketDataAggregator
   def most_recent_data_point
     most_recent = @array_of_data_points.first
     return most_recent if !most_recent.nil?
-    {time: Time.parse('1969-01-01 00:00:00 -0600')}
   end
 
   def most_distant_data_point
     most_distant = @array_of_data_points.last
     return most_distant if !most_distant.nil?
-    {time: Time.parse('1969-01-01 00:00:00 -0600')}
   end
 
   def place_data_point(data_point)
     #it is invalid to place points in between, they may only be at end or beginning
-    return @array_of_data_points.unshift data_point if data_point.before? most_recent_data_point[:time]  
-    return @array_of_data_points.push data_point    if !data_point.before?  most_distant_data_point[:time] 
+    return @array_of_data_points.unshift data_point if most_recent_data_point.nil?
+    return @array_of_data_points.unshift data_point if data_point.before? most_recent_data_point.time  
+    return @array_of_data_points.push data_point    if !data_point.before?  most_distant_data_point.time 
     false
   end
 
