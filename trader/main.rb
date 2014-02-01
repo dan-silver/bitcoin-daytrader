@@ -29,10 +29,9 @@ trader = Trader.new do |t|
   t.stats = traderStats
 end
 
+#this aggregator stuff might desperately need to get out of this module
 aggregator = MarketDataAggregator.new
-
 sample_rows = marketDb.last_rows 1000
-
 sample_rows.each do |row|
   marketDataAggregator.place_data_point aggregator.assemble_data_point_from_row row 
 end
@@ -48,13 +47,15 @@ hour = 3600
 #deltas = marketDataAggregator.get_deltas_since_seconds_ago halfhour
 #puts deltas
 
-'''
-
 while true do
   marketDataFetcher.fetch
   puts format_stars
   trader.trade
   puts "Profit this run: $#{trader.stats.profit.to_f.usd_round}"
+  
+  latest_row = marketDb.last_row #dear god this needs to be rethought
+  row_data_point = marketDataAggregator.assemble_data_point_from_row latest_row
+  marketDataAggregator.place_data_point row_data_point
+  puts (marketDataAggregator.get_jitter_since_seconds_ago halfhour).first
   sleep seconds_between_trader_runs
 end
-'''

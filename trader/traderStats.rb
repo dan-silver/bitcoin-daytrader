@@ -123,9 +123,11 @@ class MarketDataAggregator
     @weight_distribution = 'linear'
   end
 
+  
+
   #a running set of points showing the differences between points over time
   def get_deltas_since_seconds_ago(seconds_ago)
-    data_points_since_then = get_points_between_seconds_ago(1,seconds_ago)
+    data_points_since_then = get_points_between_seconds_ago(1,seconds_ago)#not include now
     delta_points = data_points_since_then.inject([]) { |num_list, elem| num_list << 
       {
         buy_delta: (elem.buy_value_in_usd - (num_list.last.nil? ? 0 : num_list.last[:buy].to_f)), 
@@ -141,9 +143,9 @@ class MarketDataAggregator
 
   #get the fluctuation between points as hash of buy: sell:
   def get_jitter_since_seconds_ago(seconds_ago)
-    data_points_since_then = get_points_between_seconds_ago(1,seconds_ago)
+    data_points_since_then = get_points_between_seconds_ago(1,seconds_ago)#not include now
     jitter_points = data_points_since_then.inject([]) { |num_list, elem| num_list << 
-      {
+      {# i know this will bug the hell out of you (dan) but i didn't want to refactor this and the deltas code
         buy_jitter: (elem.buy_value_in_usd - (num_list.last.nil? ? 0 : num_list.last[:buy].to_f)).abs, 
         sell_jitter: (elem.sell_value_in_usd - (num_list.last.nil? ? 0 : num_list.last[:sell].to_f)).abs,
         buy: elem.buy_value_in_usd,
