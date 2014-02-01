@@ -128,7 +128,7 @@ class MarketDataAggregator
 
 
   #a running set of points showing the differences between points over time
-  def get_deltas_since_seconds_ago(seconds_ago)
+  def get_deltas_since(seconds_ago)
     data_points_since_then = get_points_between_seconds_ago(1,seconds_ago)#not include now
     delta_points = data_points_since_then.inject([]) { |num_list, elem| num_list << 
       {
@@ -141,6 +141,19 @@ class MarketDataAggregator
     }
     delta_points.shift
     delta_points
+  end
+
+  #type = :buy_delta or :sell_delta
+  def match_deltas_with_weights(seconds_ago, type)
+    deltas = get_deltas_since seconds_ago
+    total_weighted_delta = 0
+    weight_increment = (@max_weight - @min_weight) / deltas.length
+    current_weight = @min_weight
+    deltas.each do |delta|
+      current_weight += weight_increment 
+      total_weighted_delta += delta[type] * current_weight
+    end
+    total_weighted_delta
   end
 
   #get the fluctuation between points as hash of buy: sell:
