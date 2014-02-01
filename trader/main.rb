@@ -16,11 +16,12 @@ Bitstamp.setup do |config|
   config.client_id = ENV["BITSTAMP_CLIENT_ID"]
 end
 
-transactionsDb    = TransactionsDatabase.new
-marketDb          = MarketDatabase.new
-traderStats       = TraderStats.new transactionsDb, marketDb
-marketDataFetcher = MarketData.new marketDb
+transactionsDb       = TransactionsDatabase.new
+marketDb             = MarketDatabase.new
+traderStats          = TraderStats.new transactionsDb, marketDb
+marketDataFetcher    = MarketData.new marketDb
 marketDataAggregator = MarketDataAggregator.new
+
 trader = Trader.new do |t|
   t.min_percent_gain = 0.012
   t.min_percent_drop = -0.01

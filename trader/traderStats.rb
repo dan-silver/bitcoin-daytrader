@@ -52,28 +52,24 @@ class TraderStats
 end
 
 class MarketDataPoint
-  
   attr_accessor :buy_value_in_usd, :sell_value_in_usd, :time
-
   attr_accessor :weight
 
-
-  def initialize( )
+  def initialize
     yield self if block_given?
   end
 
-  def btc_buy_value_change_usd now_point
+  def btc_buy_value_change_usd(now_point)
     now_point.buy_value_in_usd - @buy_value_in_usd
   end
 
-  def btc_sell_value_change_usd now_point
+  def btc_sell_value_change_usd(now_point)
     now_point.sell_value_in_usd - @sell_value_in_usd    
   end
 
   def before? (time)
      @time < time
   end
-
 end
 
 #I am wanting to think about this class as
@@ -87,8 +83,8 @@ end
 #or something that is not 100% coupled to time, simply for
 #reference
 class MarketDataAggregator
-
   attr_accessor :array_of_data_points
+
   def initialize
     @array_of_data_points = []
 
@@ -109,8 +105,6 @@ class MarketDataAggregator
     # starting at A going to B, and dipping at lowest to Mn, while peaking at Mx
     @weight_distribution = 'linear'
   end
-
-  
 
   #a running set of points showing the differences between points over time
   def get_deltas_since_seconds_ago(seconds_ago)
@@ -174,10 +168,10 @@ class MarketDataAggregator
 
   #this function ONLY assembles, it does not make assumptions
   #about the organization of the data
-  def assemble_data_point_from_row(sqlite_market_data_row)
-    buy_value   = sqlite_market_data_row[:btc_usd_buy]
-    sell_value  = sqlite_market_data_row[:btc_usd_sell]
-    time        = sqlite_market_data_row[:timestamp]
+  def assemble_data_point_from_row(market_data_row)
+    buy_value   = market_data_row[:btc_usd_buy]
+    sell_value  = market_data_row[:btc_usd_sell]
+    time        = market_data_row[:timestamp]
 
     MarketDataPoint.new do |m|
       m.buy_value_in_usd  = buy_value
