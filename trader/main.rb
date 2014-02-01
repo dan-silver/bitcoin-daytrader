@@ -31,11 +31,17 @@ end
 
 aggregator = MarketDataAggregator.new
 
-sample_rows = marketDb.last_rows 15
+sample_rows = marketDb.last_rows 1000
 
 sample_rows.each do |row|
   marketDataAggregator.place_data_point aggregator.assemble_data_point_from_row row 
 end
+
+puts marketDataAggregator.most_recent_data_point.buy_value_in_usd
+minute = 60
+halfhour = 1800
+hour = 3600
+marketDataAggregator.report 2*minute, halfhour
 '''
 
 while true do
