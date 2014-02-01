@@ -66,12 +66,22 @@ end
 
 class MarketDataPoint
   
-  attr_reader :sell_value_diff_in_usd, :buy_value_diff_in_usd, :buy_value_in_usd, :sell_value_in_usd, :time
+  attr_accessor :sell_value_diff_in_usd, :buy_value_diff_in_usd, :buy_value_in_usd, :sell_value_in_usd, :time
 
   attr_accessor :weight
-  
-  def initialize
+
+
+  def initialize( aggregator )
     yield self if block_given?
+    @aggregator = aggregator
+  end
+
+  def btc_buy_value_change_usd
+    @aggregator.most_recent_data_point.buy_value_in_usd - @buy_value_in_usd
+  end
+
+  def btc_sell_value_change_usd
+    @aggregator.most_recent_data_point.sell_value_in_usd - @sell_value_in_usd    
   end
 
   def before? (time)
@@ -123,8 +133,8 @@ class MarketDataAggregator
 
   def place_data_point(data_point) 
     #it is invalid to place points in between, they may only be at end or beginning
-    return @array_of_data_points.unshift data_point if data_point.before most_recent_data_point[:time]  
-    return @array_of_data_points.push data_point    if data_point.after  most_distant_data_point[:time] 
+    return @array_of_data_points.unshift data_point if data_point.before? most_recent_data_point[:time]  
+    return @array_of_data_points.push data_point    if !data_point.before?  most_distant_data_point[:time] 
     false
   end
 
@@ -135,17 +145,9 @@ class MarketDataAggregator
     sell_value  = sqlite_market_data_row[:btc_usd_sell]
     time        = sqlite_market_data_row[:timestamp]
 
-    now_data_point = most_recent_data_point
-
-    return if now_data_point.nil? 
-
-    MarketDataPoint.new do |m|
-      m.sell_value_diff_in_usd  = now_data_point[:sell_value_in_usd]-sell_value
-      m.buy_value_diff_in_usd   = now_data_point[:buy_value_in_usd]-buy_value
-      
-      m.buy_value_in_usd        = buy_value
-      m.sell_value_in_usd       = sell_value
-
+    MarketDataPoint.new(self) do |m|
+      m.buy_value_in_usd  = buy_value
+      m.sell_value_in_usd = sell_value
       m.time = time
     end
 
