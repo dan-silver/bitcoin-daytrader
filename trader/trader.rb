@@ -1,20 +1,12 @@
-require 'bitstamp'
-require 'colorize'
-
 load 'transactionsDatabase.rb'
 load 'marketDatabase.rb'
 load '../rounding.rb'
 load 'traderStats.rb'
+
 class Trader
   def initialize(options)
     @min_percent_gain = options[:percent_gain_for_sale]
     @min_percent_drop = options[:percent_change_for_purchase]
-
-    Bitstamp.setup do |config|
-      config.key = ENV["BITSTAMP_KEY"]
-      config.secret = ENV["BITSTAMP_SECRET"]
-      config.client_id = ENV["BITSTAMP_CLIENT_ID"]
-    end
 
     @transactionsDb = TransactionsDatabase.new
     @marketDb = MarketDatabase.new
@@ -39,28 +31,50 @@ class Trader
 
     puts "Last Transaction:".green
     puts last_transaction, ""
-    last_transaction[:type] == :sale ? consider_purchase : consider_sale
+    if last_transaction[:type] == :sale
+      puts "Considering a purchase".green
+      report :consider_purchase
+      if consider_purchase
+        puts "Minimum purchase threshold reached"
+        #purchase!
+      end
+    else
+      puts "Considering a sale".green
+      report :consider_sale
+      if consider_sale
+        puts "Minimum sale threshold reached"
+        #sell!
+      end
+    end
   end
 
   def consider_purchase
     last_sale = @transactionsDb.last :sale
-    puts "Considering a purchase".green
 
     usd_avail = last_sale[:btc] * last_sale[:btc_usd] - last_sale[:fee]
 
-    last_bitcoin_market_value = last_sale[:btc_usd]
-    current_bitcoin_market_value = @current_market_data[:btc_usd_buy]
-
-    btc_percent_change = percent_change current_bitcoin_market_value, last_bitcoin_market_value
-    
-    puts "Current bitcoin price: $#{@current_market_data[:btc_usd_buy].usd_round}"
-    puts "Waiting for a drop of #{@min_percent_drop*100}%"
-    puts "Percent change in bitcoin conversion value: " + "#{((btc_percent_change*100).percent_round.to_s+"%").color_by_sign}"
     @stats.printPriceChanges :buy
-    if btc_percent_change < @min_percent_drop
-      puts "Minimum purchase threshold reached"
-      purchase current_bitcoin_market_value, usd_avail
-    end
+    btc_percent_change(:consider_purchase) < @min_percent_drop
+    '''
+    purchase current_bitcoin_market_value, usd_avail
+    '''
+  end
+
+  def btc_percent_change (method)
+    percent_change @current_market_data[method == :consider_purchase ? :btc_usd_buy : :btc_usd_sell], @transactionsDb.last[:btc_usd]
+  end
+
+  def report(type)
+    case type
+      when :consider_purchase
+        puts "Current bitcoin buy price: $#{@current_market_data[:btc_usd_buy].usd_round}"
+        puts "Waiting for a drop of #{@min_percent_drop*100}%"
+        puts "Percent change in bitcoin conversion value: " + "#{((btc_percent_change(:type)*100).percent_round.to_s+"%").color_by_sign}"
+      when :consider_sale
+        puts "Current bitcoin sell price: $#{@current_market_data[:btc_usd_sell].usd_round}"
+        puts "Waiting for a gain of #{@min_percent_gain*100}%"
+        puts "Percent change in bitcoin conversion value: " + "#{((btc_percent_change(:type)*100).percent_round.to_s + "%").color_by_sign}"
+   end
   end
 
   def purchase(btc_usd, usd_avail)
@@ -74,25 +88,20 @@ class Trader
     refresh_fee
   end
 
+
+
   def consider_sale
-    puts "Considering a sale".green
     last_purchase = @transactionsDb.last :purchase
 
-    last_bitcoin_market_value = last_purchase[:btc_usd]
-
-    current_bitcoin_market_value = @current_market_data[:btc_usd_sell]
-    btc_percent_change = percent_change current_bitcoin_market_value, last_bitcoin_market_value
+    #current_bitcoin_market_value = @current_market_data[:btc_usd_sell]
     @stats.printPriceChanges :sell
-    puts "Current bitcoin price: $#{@current_market_data[:btc_usd_sell].usd_round}"
-    puts "Waiting for a gain of #{@min_percent_gain*100}%"
-    puts "Percent change in bitcoin conversion value: " + "#{((btc_percent_change*100).percent_round.to_s + "%").color_by_sign}"
-    puts "Sale_confidence: #{@stats.sale_confidence}"
-    if btc_percent_change > @min_percent_gain
-      puts "Minimum sale threshold reached"
-      if @stats.sale_confidence > 15
-        sell current_bitcoin_market_value, last_purchase[:btc]
-      end
+    #puts "Sale_confidence: #{@stats.sale_confidence}"
+    btc_percent_change(:consider_sale) > @min_percent_gain
+    '''
+    if @stats.sale_confidence > 15
+      sell current_bitcoin_market_value, last_purchase[:btc]
     end
+    '''
   end
 
   def sell (btc_usd, btc_quantity)
@@ -121,5 +130,4 @@ class Trader
   def stats
     @stats
   end
-
 end

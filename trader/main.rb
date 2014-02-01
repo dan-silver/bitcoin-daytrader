@@ -1,5 +1,12 @@
 require 'colorize'
+require 'bitstamp'
 load 'trader.rb'
+
+Bitstamp.setup do |config|
+  config.key = ENV["BITSTAMP_KEY"]
+  config.secret = ENV["BITSTAMP_SECRET"]
+  config.client_id = ENV["BITSTAMP_CLIENT_ID"]
+end
 
 trader = Trader.new :percent_gain_for_sale => 0.012, :percent_change_for_purchase => -0.01
 seconds_between_trader_runs = 5
