@@ -18,7 +18,7 @@ end
 
 transactionsDb       = TransactionsDatabase.new
 marketDb             = MarketDatabase.new
-traderStats          = TraderStats.new transactionsDb, marketDb
+traderStats          = TraderStats.new marketDb
 marketDataFetcher    = MarketData.new marketDb
 marketDataAggregator = MarketDataAggregator.new
 

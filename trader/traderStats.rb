@@ -1,7 +1,5 @@
 class TraderStats
-
-  def initialize(transactionsDB, marketDb)
-  	@transactionsDB = transactionsDB
+  def initialize(marketDb)
   	@marketDb = marketDb
   end
 
