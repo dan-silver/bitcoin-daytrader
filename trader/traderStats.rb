@@ -131,7 +131,7 @@ class MarketDataAggregator
     @array_of_data_points.last
   end
 
-  def place_data_point(data_point) 
+  def place_data_point(data_point)
     #it is invalid to place points in between, they may only be at end or beginning
     return @array_of_data_points.unshift data_point if data_point.before? most_recent_data_point[:time]  
     return @array_of_data_points.push data_point    if !data_point.before?  most_distant_data_point[:time] 

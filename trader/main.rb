@@ -20,7 +20,7 @@ transactionsDb    = TransactionsDatabase.new
 marketDb          = MarketDatabase.new
 traderStats       = TraderStats.new transactionsDb, marketDb
 marketDataFetcher = MarketData.new marketDb
-
+marketDataAggregator = MarketDataAggregator.new
 trader = Trader.new do |t|
   t.min_percent_gain = 0.012
   t.min_percent_drop = -0.01
@@ -30,7 +30,13 @@ trader = Trader.new do |t|
 end
 
 aggregator = MarketDataAggregator.new
-puts aggregator.assemble_data_point_from_row marketDb.last_row
+
+sample_rows = marketDb.last_rows 15
+
+sample_rows.each do |row|
+  marketDataAggregator.place_data_point aggregator.assemble_data_point_from_row row 
+end
+puts marketDataAggregator.array_of_data_points
 '''
 while true do
   marketDataFetcher.fetch
