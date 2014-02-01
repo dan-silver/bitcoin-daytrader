@@ -51,7 +51,6 @@ while true do
   marketDataFetcher.fetch
   puts format_stars
   trader.trade
-  puts "Profit this run: $#{trader.stats.profit.to_f.usd_round}"
   
   latest_row = marketDb.last_row #dear god this needs to be rethought
   row_data_point = marketDataAggregator.assemble_data_point_from_row latest_row

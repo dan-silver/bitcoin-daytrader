@@ -1,9 +1,9 @@
 class Trader
   attr_accessor :min_percent_gain, :min_percent_drop, :transactionsDb, :marketDb, :stats
   def initialize
-    #@transactionsDb.insert 0.25, 772, 0.97, :sale
-    refresh_fee
     yield self if block_given?
+    refresh_fee
+    @transactionsDb.insert 0.15861871, 795, 0.59, :purchase
   end
 
   def refresh_fee
