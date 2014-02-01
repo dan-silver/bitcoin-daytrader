@@ -1,7 +1,7 @@
 load '../data/database.rb'
 
 class MarketDatabase < Database
-  require 'date'
+  require 'time'
   def initialize
     @name = "market"
     @columns = [
@@ -20,9 +20,9 @@ class MarketDatabase < Database
 
   def convert_to_keys(row)
     {
-      :btc_usd_buy => row[0],
-      :btc_usd_sell => row[1],
-      :timestamp => Time.parse(row[2])
+      btc_usd_buy: row[0],
+      btc_usd_sell: row[1],
+      timestamp: Time.parse(row[2])
     }
   end
 
