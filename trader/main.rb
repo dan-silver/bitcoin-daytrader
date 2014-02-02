@@ -6,6 +6,7 @@ load 'traderStats.rb'
 load 'transactionsDatabase.rb'
 load 'marketDatabase.rb'
 load 'marketDataPoint.rb'
+load 'marketDataAggregator.rb'
 load 'marketData.rb'
 load '../general_library.rb'
 
@@ -19,7 +20,6 @@ transactionsDb       = TransactionsDatabase.new
 marketDb             = MarketDatabase.new
 traderStats          = TraderStats.new marketDb
 marketDataFetcher    = MarketData.new marketDb
-marketDataAggregator = MarketDataAggregator.new
 
 trader = Trader.new do |t|
   t.min_percent_gain = 0.012
@@ -33,7 +33,7 @@ end
 aggregator = MarketDataAggregator.new
 sample_rows = marketDb.last_rows 1000
 sample_rows.each do |row|
-  marketDataAggregator.place_data_point aggregator.assemble_data_point_from_row row 
+  aggregator.place_data_point aggregator.assemble_data_point_from_row row 
 end
 
 '''
@@ -49,17 +49,17 @@ puts deltas
 while true do
   marketDataFetcher.fetch
   puts format_stars
-  trader.trade
-  
-  latest_row = marketDb.last_row #dear god this needs to be rethought
-  row_data_point = marketDataAggregator.assemble_data_point_from_row latest_row
-  marketDataAggregator.place_data_point row_data_point
-  puts (marketDataAggregator.get_confidence_points_since 100)
+  #trader.trade
 
-'''
+  latest_row = marketDb.last_row #dear god this needs to be rethought
+  row_data_point = aggregator.assemble_data_point_from_row latest_row
+  aggregator.place_data_point row_data_point
+  puts (aggregator.get_confidence_points_since 100)
+
+  '''
   puts "*".red * 30
   puts marketDataAggregator.match_deltas_with_weights 10.minutes, :buy_delta
   puts "*".red * 30
-'''
+  '''
   sleep 5.seconds
 end
