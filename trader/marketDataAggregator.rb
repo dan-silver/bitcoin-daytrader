@@ -102,10 +102,9 @@ class MarketDataAggregator
   def place_data_point(data_point)
     @old_weights = true #the weights need to be re-updated
     #it is invalid to place points in between, they may only be at end or beginning
-    return @data_points.unshift data_point if most_recent_data_point.nil?
-    return @data_points.unshift data_point if data_point.before? most_recent_data_point.time
-    return @data_points.push data_point    if !data_point.before?  most_distant_data_point.time
-    false
+    @data_points.unshift data_point if most_recent_data_point.nil?
+    @data_points.unshift data_point if data_point.before? most_recent_data_point.time
+    @data_points.push data_point    if !data_point.before?  most_distant_data_point.time
   end
 
   #this function ONLY assembles, it does not make assumptions
