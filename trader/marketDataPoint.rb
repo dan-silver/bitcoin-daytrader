@@ -14,7 +14,7 @@ class MarketDataPoint
   end
 
   def btc_sell_value_change_usd(now_point)
-    now_point.sell_value_in_usd - @sell_value_in_usd    
+    now_point.sell_value_in_usd - @sell_value_in_usd
   end
 
   def btc_sell_value_change_perc(now_point)
