@@ -8,7 +8,7 @@ class Trader
 
   def refresh_fee
     @fee = Bitstamp.balance["fee"].to_f * 0.01
-    puts "Current fee is #{@fee*100}%".light_cyan
+    puts "Current fee is #{(@fee*100).percent_round}%".light_cyan
   end
 
   def trade
