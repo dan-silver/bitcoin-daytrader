@@ -10,7 +10,7 @@ class MarketDataPoint
   end
 
   def btc_buy_value_change_perc(now_point)#relative to now, since otherwise it'd be crazy to think about
-    (now_point.buy_value_in_usd - @buy_value_in_usd)/now_point.buy_value_in_usd
+    btc_buy_value_change_usd(now_point) / now_point.buy_value_in_usd
   end
 
   def btc_sell_value_change_usd(now_point)
@@ -18,7 +18,7 @@ class MarketDataPoint
   end
 
   def btc_sell_value_change_perc(now_point)
-    (now_point.sell_value_in_usd - @sell_value_in_usd)/now_point.sell_value_in_usd
+    btc_sell_value_change_usd(now_point) / now_point.sell_value_in_usd
   end
 
   def time_ago(now_point)
