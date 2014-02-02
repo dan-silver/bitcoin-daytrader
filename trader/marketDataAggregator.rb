@@ -3,8 +3,8 @@ class MarketDataAggregator
     @data_points = []
 
     #earliest and latest points, all in between will be gathered
-    @most_recent_time_to_acknowledge = 30
-    @most_distant_time_to_acknowledge = 3600
+    @most_recent_time_to_acknowledge = 30.seconds
+    @most_distant_time_to_acknowledge = 1.hour
     
     # if the max and min are Mx and Mn,
     # 
