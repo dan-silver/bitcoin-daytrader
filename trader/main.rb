@@ -20,6 +20,7 @@ transactionsDb       = TransactionsDatabase.new
 marketDb             = MarketDatabase.new
 traderStats          = TraderStats.new marketDb
 marketDataFetcher    = MarketData.new marketDb
+aggregator = MarketDataAggregator.new
 
 trader = Trader.new do |t|
   t.min_percent_gain = 0.012
@@ -29,12 +30,7 @@ trader = Trader.new do |t|
   t.stats = traderStats
 end
 
-#this aggregator stuff might desperately need to get out of this module
-aggregator = MarketDataAggregator.new
-sample_rows = marketDb.last_rows 1000
-sample_rows.each do |row|
-  aggregator.place_data_point aggregator.assemble_data_point_from_row row 
-end
+aggregator.place_data_points marketDb.last_rows 1000
 
 '''
 #puts marketDataAggregator.most_recent_data_point

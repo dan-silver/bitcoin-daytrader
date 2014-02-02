@@ -1,8 +1,6 @@
 class MarketDataAggregator
-  attr_accessor :array_of_data_points
-
   def initialize
-    @array_of_data_points = []
+    @data_points = []
 
     #earliest and latest points, all in between will be gathered
     @most_recent_time_to_acknowledge = 30
@@ -40,7 +38,7 @@ class MarketDataAggregator
   def assign_weights
     @old_weights = false
     now = Time.new
-    @array_of_data_points.map do |e| 
+    @data_points.map do |e|
       e.weight = 0
       unless !e.before? (now-@most_recent_time_to_acknowledge) || (e.before? now-@most_distant_time_to_acknowledge)
         e.weight = get_time_weight(now.to_i - e.time.to_i + @most_recent_time_to_acknowledge)
@@ -97,29 +95,29 @@ class MarketDataAggregator
   def get_points_between_seconds_ago(recent_time, distant_time) 
     now = Time.new
     assign_weights if @old_weights  
-    timeset = @array_of_data_points.select { |e| e.time < now - recent_time && e.time > now - distant_time }
+    timeset = @data_points.select { |e| e.time < now - recent_time && e.time > now - distant_time }
     timeset.reverse
   end
 
   #youngest point
   def most_recent_data_point
-    most_recent = @array_of_data_points.first
-    return most_recent if !most_recent.nil?
+    most_recent = @data_points.first
+    return most_recent unless most_recent.nil?
   end
 
   #oldest point
   def most_distant_data_point
-    most_distant = @array_of_data_points.last
-    return most_distant if !most_distant.nil?
+    most_distant = @data_points.last
+    return most_distant unless most_distant.nil?
   end
 
   #this function adds the point to the array where it belongs if it can
   def place_data_point(data_point)
     @old_weights = true #the weights need to be re-updated
     #it is invalid to place points in between, they may only be at end or beginning
-    return @array_of_data_points.unshift data_point if most_recent_data_point.nil?
-    return @array_of_data_points.unshift data_point if data_point.before? most_recent_data_point.time  
-    return @array_of_data_points.push data_point    if !data_point.before?  most_distant_data_point.time 
+    return @data_points.unshift data_point if most_recent_data_point.nil?
+    return @data_points.unshift data_point if data_point.before? most_recent_data_point.time
+    return @data_points.push data_point    if !data_point.before?  most_distant_data_point.time
     false
   end
 
@@ -130,6 +128,12 @@ class MarketDataAggregator
       m.buy_value_in_usd  = market_data_row[:btc_usd_buy]
       m.sell_value_in_usd = market_data_row[:btc_usd_sell]
       m.time = market_data_row[:timestamp]
+    end
+  end
+
+  def place_data_points(rows)
+    rows.each do |row|
+      place_data_point assemble_data_point_from_row row
     end
   end
 end

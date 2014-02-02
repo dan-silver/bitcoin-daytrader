@@ -17,7 +17,6 @@ class MarketDatabase < Database
             VALUES (?, ?, datetime('now', 'localtime'))", [buy, sell])
   end
 
-
   def convert_to_keys(row)
     {
       btc_usd_buy: row[0],
