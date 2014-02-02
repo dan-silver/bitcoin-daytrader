@@ -62,25 +62,12 @@ class MarketDataAggregator
     delta_points
   end
 
-  #type = :buy_delta or :sell_delta
-  def match_deltas_with_weights(seconds_ago, type)
-    deltas = get_deltas_since seconds_ago
-    total_weighted_delta = 0
-    weight_increment = (@max_weight - @min_weight) / deltas.length
-    current_weight = @min_weight
-    deltas.each do |delta|
-      current_weight += weight_increment 
-      total_weighted_delta += delta[type] * current_weight
-    end
-    total_weighted_delta
-  end
-
   #get the fluctuation between points as hash of buy: sell:
   def get_jitter_since_seconds_ago(seconds_ago)
     data_points_since_then = get_points_between_seconds_ago(1,seconds_ago)#not include now
     jitter_points = data_points_since_then.inject([]) { |num_list, elem| num_list << 
-      {# i know this will bug the hell out of you (dan) but i didn't want to refactor this and the deltas code
-        buy_jitter: (elem.buy_value_in_usd - (num_list.last.nil? ? 0 : num_list.last[:buy].to_f)).abs, 
+      {
+        buy_jitter: (elem.buy_value_in_usd - (num_list.last.nil? ? 0 : num_list.last[:buy].to_f)).abs,
         sell_jitter: (elem.sell_value_in_usd - (num_list.last.nil? ? 0 : num_list.last[:sell].to_f)).abs,
         buy: elem.buy_value_in_usd,
         sell: elem.sell_value_in_usd,

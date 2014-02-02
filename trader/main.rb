@@ -52,10 +52,5 @@ while true do
   aggregator.place_data_point row_data_point
   puts (aggregator.get_confidence_points_since 100)
 
-  '''
-  puts "*".red * 30
-  puts marketDataAggregator.match_deltas_with_weights 10.minutes, :buy_delta
-  puts "*".red * 30
-  '''
   sleep 5.seconds
 end
