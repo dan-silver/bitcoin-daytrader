@@ -5,6 +5,7 @@ load 'trader.rb'
 load 'traderStats.rb'
 load 'transactionsDatabase.rb'
 load 'marketDatabase.rb'
+load 'marketDataPoint.rb'
 load 'marketData.rb'
 load '../general_library.rb'
 
