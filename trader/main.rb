@@ -50,7 +50,7 @@ while true do
   latest_row = marketDb.last_row #dear god this needs to be rethought
   row_data_point = aggregator.assemble_data_point_from_row latest_row
   aggregator.place_data_point row_data_point
-  puts (aggregator.get_confidence_points_since 100)
+  puts (aggregator.get_confidence_points_since 100.seconds)
 
   sleep 5.seconds
 end
