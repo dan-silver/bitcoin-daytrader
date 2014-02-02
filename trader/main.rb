@@ -38,9 +38,9 @@ aggregator.place_data_points marketDb.last_rows 1000
 #marketDataAggregator.report 2.minutes, 30.minutes
 #jitter = marketDataAggregator.get_jitter_since_seconds_ago 30.minutes
 #puts jitter
-'''
 deltas = aggregator.get_deltas_since 30.minutes
 puts deltas
+'''
 
 while true do
   marketDataFetcher.fetch
