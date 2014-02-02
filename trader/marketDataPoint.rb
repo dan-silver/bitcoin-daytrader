@@ -2,7 +2,7 @@ class MarketDataPoint
   attr_accessor :buy_value_in_usd, :sell_value_in_usd, :time, :weight, :confidence
 
   def initialize
-    yield self if block_given?
+    yield self
   end
 
   def btc_buy_value_change_usd(now_point)
